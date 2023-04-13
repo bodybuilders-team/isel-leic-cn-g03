@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/MachinesClientApp/MachinesClientApp.iml" filepath="$PROJECT_DIR$/MachinesClientApp/MachinesClientApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MachinesManagerContract/MachinesManagerContract.iml" filepath="$PROJECT_DIR$/MachinesManagerContract/MachinesManagerContract.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ServerManager/ServerManager.iml" filepath="$PROJECT_DIR$/ServerManager/ServerManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SupervisorApp/SupervisorApp.iml" filepath="$PROJECT_DIR$/SupervisorApp/SupervisorApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SupervisorManagerContract/SupervisorManagerContract.iml" filepath="$PROJECT_DIR$/SupervisorManagerContract/SupervisorManagerContract.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/lab03-desafio.iml" filepath="$PROJECT_DIR$/.idea/lab03-desafio.iml" />
+    </modules>
+  </component>
+</project>

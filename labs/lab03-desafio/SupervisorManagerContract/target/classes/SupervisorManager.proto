@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+// each class is defined in each own file, inside a common package
+option java_multiple_files = true;
+option java_package = "supervisormanager";
+
+package supervisormanager; // package do proto
+
+service SupervisorManager {
+    // obter os Ids de todas as máquinas
+    rpc getMachinesIds(Void) returns (AllMachineIDs);
+    rpc sendCommandToMachine(Command) returns (Void);
+}
+
+message Void { }
+message MachID { int32 ID = 1; }
+message AllMachineIDs {
+    repeated MachID IDs = 1;
+}
+message Command {
+    MachID id =1;
+    int32 ctlNumber = 2;
+    string ctltext = 3;
+}
