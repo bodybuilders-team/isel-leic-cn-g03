@@ -1,27 +1,45 @@
-package primesclient;
+package machinesclient;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import primesservice.*;
-import primesservice.Void;
+import io.grpc.stub.StreamObserver;
+import machinesmanager.Information;
+import machinesmanager.MachinesManagerContractGrpc;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class ClientApp {
     private static final int svcPort = 8000;
-    private static final String svcIP = "34.175.247.249";
+    private static final String svcIP = "localhost";
 
     private static ManagedChannel channel;
-    private static PrimesServiceGrpc.PrimesServiceBlockingStub blockingStub;
-    private static PrimesServiceGrpc.PrimesServiceStub nonBlockingStub;
+    private static MachinesManagerContractGrpc.MachinesManagerContractStub stub;
 
-    static void isAliveBlocking() {
-        Text text = blockingStub.isAlive(Void.newBuilder().build());
-        System.out.println(text.getMsg());
-    }
+    public static StreamObserver<Information> serverStreamObserver;
+    public static boolean running = true;
+    public static boolean restarting = false;
 
-    static void findPrimesNonBlocking(PrimesInterval primesInterval, ClientStreamObserver clientStreamObserver) {
-        nonBlockingStub.findPrimes(primesInterval, clientStreamObserver);
+    public static Map<Integer, String> config = new HashMap<>();
+
+    private static void sendTemperaturePeriodically() {
+        new Thread(() -> {
+            while (running) {
+                double temperature = ((new Random().nextDouble() * 100) + 10);
+
+                serverStreamObserver.onNext(Information.newBuilder()
+                        .setTemperature(temperature)
+                        .build()
+                );
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
     }
 
     public static void main(String[] args) {
@@ -29,37 +47,19 @@ public class ClientApp {
             channel = ManagedChannelBuilder.forAddress(svcIP, svcPort)
                     .usePlaintext()
                     .build();
-            blockingStub = PrimesServiceGrpc.newBlockingStub(channel);
-            nonBlockingStub = PrimesServiceGrpc.newStub(channel);
+            stub = MachinesManagerContractGrpc.newStub(channel);
 
-//            System.out.print("Insert start number: ");
-//            int startNum = new Scanner(System.in).nextInt();
-//            System.out.print("Insert end number: ");
-//            int endNum = new Scanner(System.in).nextInt();
-            int startNum = 1;
-            int endNum = 500;
-            int interval = 100;
+            ClientStreamObserver clientStreamObserver = new ClientStreamObserver();
 
-            List<ClientStreamObserver> clientStreamObservers = new java.util.ArrayList<>();
+            serverStreamObserver = stub.connectToManager(clientStreamObserver);
 
-            for(int i = startNum; i <= endNum; i += interval) {
-                ClientStreamObserver clientStreamObserver = new ClientStreamObserver();
-                clientStreamObservers.add(clientStreamObserver);
+            sendTemperaturePeriodically();
 
-                findPrimesNonBlocking(PrimesInterval.newBuilder()
-                                .setStartNum(i)
-                                .setEndNum(i + interval)
-                                .build(),
-                        clientStreamObserver);
-            }
-
-            for(ClientStreamObserver clientStreamObserver : clientStreamObservers) {
-                while (!clientStreamObserver.isCompleted()) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+            while (true) {
+                if (restarting) {
+                    restarting = false;
+                    running = true;
+                    sendTemperaturePeriodically();
                 }
             }
         } catch (Exception ex) {

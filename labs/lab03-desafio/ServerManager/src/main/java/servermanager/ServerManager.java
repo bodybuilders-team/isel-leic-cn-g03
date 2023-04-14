@@ -9,11 +9,11 @@ public class ServerManager {
 
     public static void main(String[] args) {
         try {
-            ManagedMachines manMach = new ManagedMachines();
+            ManagedMachines managedMachines = new ManagedMachines();
             io.grpc.Server svc = ServerBuilder
                     .forPort(svcPort)
-                    .addService(new ServerMachine(manMach))
-                    .addService(new ServerSupervisor(manMach))
+                    .addService(new ServerMachine(managedMachines))
+                    .addService(new ServerSupervisor(managedMachines))
                     .build()
                     .start();
 

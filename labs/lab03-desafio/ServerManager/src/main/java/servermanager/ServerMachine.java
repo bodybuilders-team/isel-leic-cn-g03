@@ -15,8 +15,7 @@ public class ServerMachine extends MachinesManagerContractGrpc.MachinesManagerCo
     @Override
     public ServerStreamObserver connectToManager(
             StreamObserver<Information> responseObserver) {
-        managedMachines.addMachine(responseObserver);
-        return new ServerStreamObserver();
+        int machineId = managedMachines.addMachine(responseObserver);
+        return new ServerStreamObserver(machineId, responseObserver);
     }
-
 }
