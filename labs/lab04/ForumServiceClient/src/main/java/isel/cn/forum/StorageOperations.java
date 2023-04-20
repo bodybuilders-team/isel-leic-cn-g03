@@ -2,14 +2,7 @@ package isel.cn.forum;
 
 import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
-import com.google.cloud.storage.Acl;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.BucketInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageClass;
+import com.google.cloud.storage.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -172,6 +165,16 @@ public class StorageOperations {
             System.out.println("No such Blob exists !");
             return;
         }
+
+        if (!Files.exists(downloadTo.getParent())) {
+            Files.createDirectories(downloadTo.getParent());
+        }
+
+        // Check if the file exists and create it if not
+        if (!Files.exists(downloadTo)) {
+            Files.createFile(downloadTo);
+        }
+
         PrintStream writeTo = new PrintStream(Files.newOutputStream(downloadTo));
         if (blob.getSize() < 1_000_000) {
             // Blob is small read all its content in one request

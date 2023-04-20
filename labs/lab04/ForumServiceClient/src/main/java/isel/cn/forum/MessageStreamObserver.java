@@ -5,7 +5,7 @@ import io.grpc.stub.StreamObserver;
 
 public class MessageStreamObserver implements StreamObserver<ForumMessage> {
 
-    private static final String downloadBlobsDestination = "../downloadedBlobs/";
+    private static final String downloadBlobsDestination = "/downloadedBlobs/";
     private final StorageOperations soper;
     private boolean isCompleted = false;
     private boolean success = false;
@@ -19,13 +19,13 @@ public class MessageStreamObserver implements StreamObserver<ForumMessage> {
     public boolean isCompleted() {return isCompleted;}
 
     @Override
-    public void onNext(ForumMessage forumMessage) { // <texto>[;<bucketName>;<blobName>]
+    public void onNext(ForumMessage forumMessage) { // <texto>[;<bucketName>;<blobName>
         String[] message = forumMessage.getTxtMsg().split(";");
-        String text = message[0].substring(message[0].length() - 1, message[0].length());
+        String text = message[0].substring(0, message[0].length() - 1);
         String bucketName = message[1];
-        String blobName = message[2].substring(message[0].length() - 1, message[0].length());
+        String blobName = message[2].substring(0, message[2].length() - 1);
 
-        System.out.println("Received message:" + text +
+        System.out.println("Received message: " + text +
                 " from " + forumMessage.getFromUser() +
                 " on topic " + forumMessage.getTopicName());
 
@@ -41,6 +41,7 @@ public class MessageStreamObserver implements StreamObserver<ForumMessage> {
     @Override
     public void onError(Throwable throwable) {
         System.out.println("Error on call:" + throwable.getMessage());
+        throwable.printStackTrace();
         isCompleted = true;
         success = false;
     }

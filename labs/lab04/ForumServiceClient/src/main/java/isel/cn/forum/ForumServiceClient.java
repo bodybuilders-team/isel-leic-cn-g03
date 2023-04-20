@@ -17,7 +17,7 @@ import java.util.Scanner;
  */
 public class ForumServiceClient {
 
-    private static final String svcIP = "34.76.2.185";
+    private static final String svcIP = "localhost";//"34.76.2.185";
     private static final int svcPort = 8000;
     static StorageOperations soper;
     private static ManagedChannel channel;
