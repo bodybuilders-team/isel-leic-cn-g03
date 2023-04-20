@@ -1,3 +1,5 @@
+package isel.cn.forum;
+
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.protobuf.Empty;
@@ -63,14 +65,74 @@ public class ForumServiceClient {
             System.out.println(topic);
     }
 
+    static void uploadBlob() {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Enter the name of the Bucket? ");
+        String bucketName = scan.nextLine();
+        System.out.println("Enter the name of the Blob? ");
+        String blobName = scan.nextLine();
+        System.out.println("Enter the pathname of the file to upload? ");
+        String absFileName = scan.nextLine();
+
+        try {
+            soper.uploadBlobToBucket(bucketName, blobName, absFileName);
+            soper.makeBlobPublic(bucketName, blobName);
+        } catch (Exception e) {
+            System.out.println("Error uploading blob to bucket: " + e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+        System.out.println("Successfully uploaded blob " + blobName + " to bucket " + bucketName);
+    }
+
     static void publishMessage() {
         Scanner scan = new Scanner(System.in);
         System.out.print("Enter your user name: ");
         String userName = scan.nextLine();
         System.out.print("Enter the topic name: ");
         String topicName = scan.nextLine();
-        System.out.print("Enter the message [<texto>[;<bucketName>;<blobName>]]: ");
+        System.out.print("Enter the text for the message: "); // [<texto>[;<bucketName>;<blobName>]
         String message = scan.nextLine();
+        System.out.print("Notify about a blob upload? (Y/n): ");
+        String notifyBlob = scan.nextLine();
+
+        if(notifyBlob.equals("Y") || notifyBlob.equals("y")) {
+            System.out.print("Is the blob already uploaded? (Y/n): ");
+            String blobAlreadyUploaded = scan.nextLine();
+            System.out.println("Enter the name of the Bucket? ");
+            String bucketName = scan.nextLine();
+            System.out.println("Enter the name of the Blob? ");
+            String blobName = scan.nextLine();
+
+            if (blobAlreadyUploaded.equals("Y") || blobAlreadyUploaded.equals("y")) {
+                try {
+                    if (!soper.checkBlobExists(bucketName, blobName)) {
+                        System.out.println("Blob does not exist!");
+                        return;
+                    }
+                }
+                catch (Exception e) {
+                    System.out.println("Error checking blob existence: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+            }
+            else {
+                System.out.println("Enter the pathname of the file to upload? ");
+                String absFileName = scan.nextLine();
+
+                try {
+                    soper.uploadBlobToBucket(bucketName, blobName, absFileName);
+                    soper.makeBlobPublic(bucketName, blobName);
+                } catch (Exception e) {
+                    System.out.println("Error uploading blob to bucket: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+            }
+
+            message += "[;" + bucketName + ";" + blobName + "]";
+        }
 
         Empty res = blockingStub.publishMessage(
                 ForumMessage.newBuilder()
@@ -91,12 +153,13 @@ public class ForumServiceClient {
             System.out.println(" 0: Subscribe to a topic");
             System.out.println(" 1: Unsubscribe from a topic");
             System.out.println(" 2: Get all topics");
-            System.out.println(" 3: Publish a message");
+            System.out.println(" 3: Upload blob");
+            System.out.println(" 4: Publish a message");
             System.out.println("..........");
             System.out.println("99: Exit");
             System.out.print("Enter an Option: ");
             option = scan.nextInt();
-        } while (!((option >= 0 && option <= 3) || option == 99));
+        } while (!((option >= 0 && option <= 4) || option == 99));
         return option;
     }
 
@@ -135,6 +198,9 @@ public class ForumServiceClient {
                         getAllTopics();
                         break;
                     case 3:
+                        uploadBlob();
+                        break;
+                    case 4:
                         publishMessage();
                         break;
                     case 99:

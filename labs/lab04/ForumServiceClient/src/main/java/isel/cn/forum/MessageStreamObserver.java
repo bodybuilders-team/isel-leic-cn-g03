@@ -1,3 +1,5 @@
+package isel.cn.forum;
+
 import forum.ForumMessage;
 import io.grpc.stub.StreamObserver;
 
@@ -19,9 +21,9 @@ public class MessageStreamObserver implements StreamObserver<ForumMessage> {
     @Override
     public void onNext(ForumMessage forumMessage) { // <texto>[;<bucketName>;<blobName>]
         String[] message = forumMessage.getTxtMsg().split(";");
-        String text = message[0];
+        String text = message[0].substring(message[0].length() - 1, message[0].length());
         String bucketName = message[1];
-        String blobName = message[2];
+        String blobName = message[2].substring(message[0].length() - 1, message[0].length());
 
         System.out.println("Received message:" + text +
                 " from " + forumMessage.getFromUser() +

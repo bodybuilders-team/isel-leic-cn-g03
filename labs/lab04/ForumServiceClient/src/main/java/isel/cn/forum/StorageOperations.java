@@ -1,3 +1,5 @@
+package isel.cn.forum;
+
 import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.Acl;
@@ -9,6 +11,7 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
@@ -131,14 +134,7 @@ public class StorageOperations {
         }
     }
 
-    public void uploadBlobToBucket() throws Exception {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Enter the name of the Bucket? ");
-        String bucketName = scan.nextLine();
-        System.out.println("Enter the name of the Blob? ");
-        String blobName = scan.nextLine();
-        System.out.println("Enter the pathname of the file to upload? ");
-        String absFileName = scan.nextLine();
+    public void uploadBlobToBucket(String bucketName, String blobName, String absFileName) throws IOException {
         Path uploadFrom = Paths.get(absFileName);
         String contentType = Files.probeContentType(uploadFrom);
         BlobId blobId = BlobId.of(bucketName, blobName);
@@ -197,12 +193,7 @@ public class StorageOperations {
         System.out.println("Blob " + blobName + " downloaded to " + downloadTo);
     }
 
-    public void makeBlobPublic() throws Exception {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Enter the name of the Bucket? ");
-        String bucketName = scan.nextLine();
-        System.out.println("Enter the name of the Blob? ");
-        String blobName = scan.nextLine();
+    public void makeBlobPublic(String bucketName, String blobName) throws Exception {
         BlobId blobId = BlobId.of(bucketName, blobName);
         Blob blob = storage.get(blobId);
         if (blob == null) {
@@ -221,6 +212,12 @@ public class StorageOperations {
         blob.createAcl(acl);
 
         System.out.println("Blob " + blobName + " is now public in bucket " + bucketName);
+    }
+
+    public boolean checkBlobExists(String bucketName, String blobName) throws Exception {
+        BlobId blobId = BlobId.of(bucketName, blobName);
+        Blob blob = storage.get(blobId);
+        return blob != null;
     }
 
     // TODO: Develop other Operations. Some of them in slides
