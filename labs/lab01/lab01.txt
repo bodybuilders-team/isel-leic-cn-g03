@@ -1,0 +1,24 @@
+Serial Mode:
+2 Requests:
+	- 10015 ms
+	- 17982 ms
+	
+3 Requests:
+	- 10094 ms
+	- 23029 ms
+	- 36358 ms
+	
+	- 10147 ms
+	- 17891 ms
+	- 26157 ms
+
+Concurrent Mode:
+2 Requests:
+	- 10016 ms
+	- 10023 ms
+
+3 Requests:
+	- 10238 ms
+	- 10109 ms
+	- 10097 ms
+	

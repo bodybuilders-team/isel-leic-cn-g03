@@ -1,0 +1,34 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+option java_multiple_files = true;
+option java_package = "forum";
+
+package forum;
+
+// The Forum service definition.
+service Forum {
+  // subscribe a topic
+  rpc topicSubscribe(SubscribeUnSubscribe) returns (stream ForumMessage);
+  // unsubscribe a topic
+  rpc topicUnSubscribe(SubscribeUnSubscribe) returns (google.protobuf.Empty);
+  // get all topics in server
+  rpc getAllTopics(google.protobuf.Empty) returns (ExistingTopics);
+  // send a message to a topic
+  rpc publishMessage(ForumMessage) returns (google.protobuf.Empty);
+}
+
+message SubscribeUnSubscribe {
+  string usrName = 1;
+  string topicName = 2;
+}
+
+message ExistingTopics {
+  // list of topic names
+  repeated string topicName = 1;
+}
+
+message ForumMessage {
+  string fromUser = 1;
+  string topicName = 2;
+  string txtMsg = 3;
+}

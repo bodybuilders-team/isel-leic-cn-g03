@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+// each class is defined in each own file, inside a common package
+option java_multiple_files = true;
+option java_package = "machinesmanager";
+
+package machinesmanager; // package do proto
+
+service MachinesManagerContract {
+  rpc connectToManager (stream Information)
+      returns (stream Information);
+}
+
+message Void {}
+
+message MachineID {int32 ID = 1;}
+
+// generic message between Machine-Manager
+message Information {
+  MachineID mID = 1;
+  oneof MsgOptions {
+    double temperature = 2;
+    Control ctl = 3;
+    Config conf = 4;
+  }
+}
+
+message Control {
+  int32 ctlNumber = 1;
+  string ctltext = 2;
+}
+
+message Config {
+  map<int32, string> configPairs = 1;
+}
+

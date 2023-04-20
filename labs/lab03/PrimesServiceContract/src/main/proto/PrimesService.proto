@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+// each class is defined in each own file, inside a common package
+option java_multiple_files = true;
+option java_package = "primesservice";
+
+package primesservice; // package do proto
+
+service PrimesService {
+  rpc isAlive(Void) returns (Text);
+  rpc findPrimes (PrimesInterval) returns (stream Prime);
+}
+
+message Void {
+
+}
+
+message Text {
+  string msg = 1;
+}
+
+// input message
+message PrimesInterval {
+  int32 startNum = 1;
+  int32 endNum = 2;
+}
+
+// output message
+message Prime {
+  int32 prime = 1;
+}
+
