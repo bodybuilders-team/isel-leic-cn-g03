@@ -134,14 +134,7 @@ public class StorageOperations {
         }
     }
 
-    public void uploadBlobToBucket() throws Exception {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Enter the name of the Bucket? ");
-        String bucketName = scan.nextLine();
-        System.out.println("Enter the name of the Blob? ");
-        String blobName = scan.nextLine();
-        System.out.println("Enter the pathname of the file to upload? ");
-        String absFileName = scan.nextLine();
+    public void uploadBlobToBucket(String bucketName, String blobName, String absFileName) throws IOException {
         Path uploadFrom = Paths.get(absFileName);
         String contentType = Files.probeContentType(uploadFrom);
         BlobId blobId = BlobId.of(bucketName, blobName);
@@ -170,22 +163,25 @@ public class StorageOperations {
         System.out.println("Blob " + blobName + " created in bucket " + bucketName);
     }
 
-    public void downloadBlobFromBucket() throws IOException {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("The name of Bucket? ");
-        String bucketName = scan.nextLine();
-        System.out.println("The name of Blob? ");
-        String blobName = scan.nextLine();
-        System.out.println("What is the file pathname for downloading the Blob? ");
-        String absFileName = scan.nextLine();
+    public void downloadBlobFromBucket(String bucketName, String blobName, String absFileName) throws Exception {
         Path downloadTo = Paths.get(absFileName);
-        //System.out.println("download to: "+downloadTo);
+        System.out.println("Downloading blob " + blobName + " from bucket " + bucketName + " to " + absFileName);
         BlobId blobId = BlobId.of(bucketName, blobName);
         Blob blob = storage.get(blobId);
         if (blob == null) {
             System.out.println("No such Blob exists !");
             return;
         }
+
+        if (!Files.exists(downloadTo.getParent())) {
+            Files.createDirectories(downloadTo.getParent());
+        }
+
+        // Check if the file exists and create it if not
+        if (!Files.exists(downloadTo)) {
+            Files.createFile(downloadTo);
+        }
+
         PrintStream writeTo = new PrintStream(Files.newOutputStream(downloadTo));
         if (blob.getSize() < 1_000_000) {
             // Blob is small read all its content in one request
@@ -207,12 +203,7 @@ public class StorageOperations {
         System.out.println("Blob " + blobName + " downloaded to " + downloadTo);
     }
 
-    public void makeBlobPublic() throws Exception {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Enter the name of the Bucket? ");
-        String bucketName = scan.nextLine();
-        System.out.println("Enter the name of the Blob? ");
-        String blobName = scan.nextLine();
+    public void makeBlobPublic(String bucketName, String blobName) throws Exception {
         BlobId blobId = BlobId.of(bucketName, blobName);
         Blob blob = storage.get(blobId);
         if (blob == null) {
@@ -231,6 +222,12 @@ public class StorageOperations {
         blob.createAcl(acl);
 
         System.out.println("Blob " + blobName + " is now public in bucket " + bucketName);
+    }
+
+    public boolean checkBlobExists(String bucketName, String blobName) throws Exception {
+        BlobId blobId = BlobId.of(bucketName, blobName);
+        Blob blob = storage.get(blobId);
+        return blob != null;
     }
 
     // TODO: Develop other Operations. Some of them in slides
