@@ -23,19 +23,18 @@ import com.google.pubsub.v1.SubscriptionName;
 import com.google.pubsub.v1.TopicName;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class SharedFotos {
 
     private static final String COLLECTION_ID = "sharefotos";
     private static final String TOPIC_ID = "sharefotos";
-    private static String PROJECT_ID;
-    private static final String downloadedPhotosDestination = "downloadedBlobs/";
+    private static final String PROJECT_ID = "cn2223-t1-g03";
+    private static final String downloadedPhotosDestination = "downloadedPhotos/";
 
     private static String username;
     static StorageOperations soper;
@@ -56,7 +55,6 @@ public class SharedFotos {
         // Setup Storage
         StorageOptions storageOptions = StorageOptions.getDefaultInstance();
         soper = new StorageOperations(storageOptions.getService());
-        PROJECT_ID = storageOptions.getProjectId();
 
         Scanner scan = new Scanner(System.in);
         System.out.println("Enter your username: ");
@@ -112,11 +110,11 @@ public class SharedFotos {
 
                 // Update Firestore
                 CollectionReference collection = db.collection(COLLECTION_ID);
-                String docId = msg.getAttributesOrThrow("docId");
+                String docId = msg.getAttributesOrThrow("firestoreDocumentID");
                 DocumentReference docRef = collection.document(docId);
                 try {
                     Map<String, Object> data = docRef.get().get().getData();
-                    data.put("DateReceivedBy-" + username, LocalDate.now().toString());
+                    data.put("DateReceivedBy-" + username, LocalDateTime.now().toString());
                     ApiFuture<WriteResult> result = docRef.update(data);
                     System.out.println("Update time : " + result.get().getUpdateTime());
                 } catch (InterruptedException e) {
@@ -160,7 +158,7 @@ public class SharedFotos {
         }
 
         TopicName topicName = TopicName.ofProjectTopicName(PROJECT_ID, TOPIC_ID);
-        SubscriptionName subscriptionName = SubscriptionName.of(PROJECT_ID, UUID.randomUUID().toString());
+        SubscriptionName subscriptionName = SubscriptionName.of(PROJECT_ID, username);
         SubscriptionAdminClient subscriptionAdminClient = SubscriptionAdminClient.create();
         PushConfig pconfig = PushConfig.getDefaultInstance();
 
@@ -170,8 +168,8 @@ public class SharedFotos {
         );
 
         subscriptionAdminClient.close();
-
         mySubscriber = new MySubscriber(subscription);
+        System.out.println("Subscribed to the topic");
     }
 
     private static void unsubscribeTopic() throws IOException {
@@ -213,7 +211,7 @@ public class SharedFotos {
         DocumentReference docRef = collection.document(blobName);
         HashMap<String, String> data = new HashMap<>();
         data.put("publisher", username);
-        data.put("datePublished", java.time.LocalDate.now().toString());
+        data.put("datePublished", java.time.LocalDateTime.now().toString());
 
         try {
             WriteResult result = docRef.set(data).get();
