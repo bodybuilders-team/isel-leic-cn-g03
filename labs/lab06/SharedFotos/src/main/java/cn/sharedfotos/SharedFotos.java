@@ -8,21 +8,24 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
+import com.google.cloud.firestore.WriteResult;
 import com.google.cloud.pubsub.v1.AckReplyConsumer;
 import com.google.cloud.pubsub.v1.MessageReceiver;
+import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.pubsub.v1.Subscriber;
 import com.google.cloud.pubsub.v1.SubscriptionAdminClient;
-import com.google.cloud.firestore.WriteResult;
-import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.StorageOptions;
-import com.google.pubsub.v1.*;
 import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
+import com.google.pubsub.v1.PushConfig;
+import com.google.pubsub.v1.Subscription;
+import com.google.pubsub.v1.SubscriptionName;
 import com.google.pubsub.v1.TopicName;
 
 import java.io.IOException;
-import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -105,6 +108,21 @@ public class SharedFotos {
                             downloadedPhotosDestination + blobName);
                 } catch (Exception e) {
                     System.out.println("Error downloading blob from bucket: " + e.getMessage());
+                }
+
+                // Update Firestore
+                CollectionReference collection = db.collection(COLLECTION_ID);
+                String docId = msg.getAttributesOrThrow("docId");
+                DocumentReference docRef = collection.document(docId);
+                try {
+                    Map<String, Object> data = docRef.get().get().getData();
+                    data.put("DateReceivedBy-" + username, LocalDate.now().toString());
+                    ApiFuture<WriteResult> result = docRef.update(data);
+                    System.out.println("Update time : " + result.get().getUpdateTime());
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
                 }
 
                 ackReply.ack();
