@@ -10,8 +10,14 @@ import java.util.Scanner;
  * Server for the primes service using gRPC.
  */
 public class PrimesServer extends PrimesServiceGrpc.PrimesServiceImplBase {
+
     private static final int svcPort = 8000;
 
+    /**
+     * Entry point for the server.
+     *
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
         try {
             Server svc = ServerBuilder.forPort(svcPort)
@@ -19,6 +25,7 @@ public class PrimesServer extends PrimesServiceGrpc.PrimesServiceImplBase {
                     .build()
                     .start();
             System.out.println("PrimesServer started on port " + svcPort);
+
             Scanner scanner = new Scanner(System.in);
             scanner.nextLine();
             svc.shutdown();
@@ -78,5 +85,4 @@ public class PrimesServer extends PrimesServiceGrpc.PrimesServiceImplBase {
         }
         responseObserver.onCompleted();
     }
-
 }

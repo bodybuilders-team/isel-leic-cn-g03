@@ -18,6 +18,11 @@ public class ServerRMI implements IPrimesService {
     static int registerPort = 7000;
     static ServerRMI svc = null;
 
+    /**
+     * Entry point for the server.
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         try {
             serverIP = args[0];

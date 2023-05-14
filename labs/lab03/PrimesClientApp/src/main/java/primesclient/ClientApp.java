@@ -20,15 +20,31 @@ public class ClientApp {
     private static PrimesServiceGrpc.PrimesServiceBlockingStub blockingStub;
     private static PrimesServiceGrpc.PrimesServiceStub nonblockingStub;
 
+    /**
+     * Calls the isAlive service.
+     *
+     * @param request the request
+     */
     static void isAlive(Void request) {
         Text text = blockingStub.isAlive(request);
         System.out.println("isAlive: " + text.getMsg());
     }
 
+    /**
+     * Calls the findPrimes service.
+     *
+     * @param request          the request
+     * @param responseObserver the response observer
+     */
     static void findPrimes(PrimesInterval request, ClientStreamObserver responseObserver) {
         nonblockingStub.findPrimes(request, responseObserver);
     }
 
+    /**
+     * Entry point of the client application.
+     *
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
         // Channels are secure by default (via SSL/TLS).
         // For the example we disable TLS to avoid needing certificates.
@@ -61,4 +77,3 @@ public class ClientApp {
         scanner.nextLine();
     }
 }
-

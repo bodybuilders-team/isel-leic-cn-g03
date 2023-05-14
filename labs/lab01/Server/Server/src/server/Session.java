@@ -6,11 +6,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * A session is a thread that handles a client connection.
+ */
 public class Session implements Runnable {
-    Socket cliSocket = null;
+    Socket cliSocket;
     int id;
-    BufferedReader inStream = null;
-    PrintWriter outStream = null;
+    BufferedReader inStream;
+    PrintWriter outStream;
 
     public Session(Socket cliSocket, int id) {
         this.cliSocket = cliSocket;
@@ -28,7 +31,6 @@ public class Session implements Runnable {
             String response = ProcessRequest.processar(request);
             outStream.println("biggest word: " + response + " size = " + response.length());
             cliSocket.close();
-            // print session info
             System.out.println("Session " + id + " terminates.");
         } catch (Exception ex) {
             ex.printStackTrace();

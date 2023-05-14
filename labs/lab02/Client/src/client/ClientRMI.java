@@ -14,9 +14,14 @@ import java.rmi.server.UnicastRemoteObject;
 public class ClientRMI {
     static String serverIP = "localhost";
     static int registerPort = 7000;
-    static ICallback callback = null;
+    static ICallback callback;
     static int interval = 1000;
 
+    /**
+     * Entry point for the client.
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         try {
             Registry registry = LocateRegistry.getRegistry(serverIP, registerPort);

@@ -31,16 +31,12 @@
             <artifactId>grpc-stub</artifactId>
             <version>1.53.0</version>
         </dependency>
-
         <dependency>
             <groupId>isel.cn</groupId>
             <artifactId>PrimesServiceContract</artifactId>
             <version>1.0</version>
         </dependency>
-
-
     </dependencies>
-
 
     <build>
         <plugins>

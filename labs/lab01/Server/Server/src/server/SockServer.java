@@ -9,23 +9,30 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Example of a simple socket server.
+ */
 public class SockServer {
 
     static int port = 0;
 
-    //arg0: flag {s - sequential requests | c - concurrent requests}
-    // arg1: port
+    /**
+     * Entry point of the server.
+     *
+     * @param args Command line arguments.
+     *             arg0: flag {s - sequential requests | c - concurrent requests}
+     *             arg1: port
+     */
     public static void main(String[] args) {
         try {
             if (args.length != 2) {
                 System.out.println("Usage: Server {s|c} port");
                 System.exit(-1);
             }
-            ServerSocket svcSocket = null;
             port = Integer.parseInt(args[1]);
-            svcSocket = null;
-            svcSocket = new ServerSocket(port);
-            if (args[0].toLowerCase().compareTo("c") == 0) { // concurrent requests
+            ServerSocket svcSocket = new ServerSocket(port);
+
+            if (args[0].toLowerCase().compareTo("c") == 0) { // Concurrent requests
                 System.out.println("Server concurrent on port " + port);
                 ExecutorService executor = Executors.newFixedThreadPool(5);
                 int sessionId = 0;
@@ -38,19 +45,19 @@ public class SockServer {
                     executor.execute(worker);
                 }
             } else {
-                if (args[0].toLowerCase().compareTo("s") == 0) {// sequential requests
+                if (args[0].toLowerCase().compareTo("s") == 0) { // Sequential requests
                     for (; ; ) {
                         try {
                             System.out.println("Server Serial on port " + port);
                             System.out.println("Accepting new connections... ");
-                            //block until receive connection
+                            // Block until receive connection
                             Socket cliSocket = svcSocket.accept();
                             System.out.println("Serial Connection with " + cliSocket);
                             BufferedReader inStream = new BufferedReader(
                                     new InputStreamReader(cliSocket.getInputStream())
                             );
                             PrintWriter outStream = new PrintWriter(cliSocket.getOutputStream(), true);
-                            String request = inStream.readLine();  //receive the request
+                            String request = inStream.readLine();  // Receive the request
                             String response = ProcessRequest.processar(request);
                             outStream.println("biggest word: " + response + " size = " + response.length()); // send the reply
                             cliSocket.close();

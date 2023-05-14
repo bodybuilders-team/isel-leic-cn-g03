@@ -8,14 +8,21 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Example of a simple socket client.
+ */
 public class SocketClient {
 
     static int Svcport = 80;
-    //static String SvcIP="localhost";
-    static String SvcIP = "34.175.170.137";
+    static String SvcIP = "34.175.170.137"; // "localhost"
 
-    //arg0: Server public IP
-    //arg1: Server port
+    /**
+     * Entry point of the client.
+     *
+     * @param args Command line arguments.
+     *             arg0: Server public IP
+     *             arg1: Server port
+     */
     public static void main(String[] args) {
         try {
             if (args.length > 0) {
@@ -23,11 +30,14 @@ public class SocketClient {
                 Svcport = Integer.parseInt(args[1]);
             }
             Socket client = new Socket(SvcIP, Svcport);
+
             // Stream to write to
             PrintWriter outSock = new PrintWriter(client.getOutputStream(), true);
+
             // Stream to read from
             BufferedReader inSock = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            List<String> lines = LerNlinhas();
+
+            List<String> lines = readLines();
             long start = System.currentTimeMillis();
             System.out.println("Start request: " + start);
             System.out.println("Sending request to " + client);
@@ -41,7 +51,13 @@ public class SocketClient {
         }
     }
 
-    static List<String> LerNlinhas() throws IOException {
+    /**
+     * Reads lines from the console.
+     *
+     * @return List of lines read from the console.
+     * @throws IOException If an I/O error occurs.
+     */
+    static List<String> readLines() throws IOException {
         System.out.println("Introduce text lines with separated words and finish with a blank line");
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         List<String> lines = new ArrayList<String>();
@@ -54,6 +70,12 @@ public class SocketClient {
         return lines;
     }
 
+    /**
+     * Packs a list of strings into a single string.
+     *
+     * @param lines List of strings to pack.
+     * @return A single string with all the strings in the list.
+     */
     static String packToString(List<String> lines) {
         String aux = "";
         for (String s : lines) {
