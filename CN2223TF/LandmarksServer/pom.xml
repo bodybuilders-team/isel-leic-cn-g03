@@ -4,14 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>isel.leic.cn.cn2223tf</groupId>
-    <artifactId>CN2223TF</artifactId>
+    <groupId>pt.isel.cn.landmarks</groupId>
+    <artifactId>LandmarksServer</artifactId>
     <version>1.0</version>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <dependencyManagement>
@@ -27,6 +28,12 @@
     </dependencyManagement>
 
     <dependencies>
+        <!--Contract-->
+        <!--<dependency>
+            <groupId>pt.isel.cn.landmarks</groupId>
+            <artifactId>LandmarksContract</artifactId>
+            <version>1.0</version>
+        </dependency>-->
         <!--Cloud Storage-->
         <dependency>
             <groupId>com.google.cloud</groupId>

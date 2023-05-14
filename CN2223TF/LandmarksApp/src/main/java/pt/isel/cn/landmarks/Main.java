@@ -1,4 +1,4 @@
-package isel.leic.cn.cn2223tf;
+package pt.isel.cn.landmarks;
 
 public class Main {
     public static void main(String[] args) {
