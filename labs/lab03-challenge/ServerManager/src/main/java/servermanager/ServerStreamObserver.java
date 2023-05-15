@@ -4,9 +4,13 @@ import io.grpc.stub.StreamObserver;
 import machinesmanager.Information;
 import machinesmanager.MachineID;
 
+/**
+ * Stream observer for the server.
+ */
 public class ServerStreamObserver implements StreamObserver<Information> {
     private static final double MAX_TEMP = 100.0;
     private final int machineId;
+
     private final StreamObserver<Information> machineStreamObserver;
     private boolean isCompleted = false;
     private boolean success = false;
@@ -16,10 +20,20 @@ public class ServerStreamObserver implements StreamObserver<Information> {
         this.machineStreamObserver = machineStreamObserver;
     }
 
+    /**
+     * Returns true if the machine was successfully connected to the server.
+     *
+     * @return true if the machine was successfully connected to the server
+     */
     public boolean OnSuccess() {
         return success;
     }
 
+    /**
+     * Returns true if the stream is completed.
+     *
+     * @return true if the stream is completed
+     */
     public boolean isCompleted() {
         return isCompleted;
     }

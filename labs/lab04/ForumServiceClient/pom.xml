@@ -22,7 +22,7 @@
         </dependency>
 
         <dependency>
-            <groupId>isel.cn</groupId>
+            <groupId>pt.isel.cn</groupId>
             <artifactId>ForumServiceContractLab4</artifactId>
             <version>1.0</version>
         </dependency>

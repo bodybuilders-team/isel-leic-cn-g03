@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>isel.cn</groupId>
+    <groupId>pt.isel.cn</groupId>
     <artifactId>SupervisorApp</artifactId>
     <version>1.0</version>
 
@@ -17,7 +17,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>isel.cn</groupId>
+            <groupId>pt.isel.cn</groupId>
             <artifactId>SupervisorManagerContract</artifactId>
             <version>1.0</version>
         </dependency>

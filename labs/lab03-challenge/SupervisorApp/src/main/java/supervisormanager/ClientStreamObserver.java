@@ -4,21 +4,33 @@ import io.grpc.stub.StreamObserver;
 
 import static supervisormanager.ClientApp.stub;
 
+/**
+ * Stream observer for the client application of the supervisor.
+ */
 public class ClientStreamObserver implements StreamObserver<AllMachineIDs> {
     private boolean isCompleted = false;
     private boolean success = false;
 
+    /**
+     * Returns true if the machine was successfully connected to the server.
+     *
+     * @return true if the machine was successfully connected to the server
+     */
     public boolean OnSuccess() {
         return success;
     }
 
+    /**
+     * Returns true if the stream is completed.
+     *
+     * @return true if the stream is completed
+     */
     public boolean isCompleted() {
         return isCompleted;
     }
 
     @Override
     public void onNext(AllMachineIDs allMachineIDs) {
-        // Stop the first machine
         stub.sendCommandToMachine(
                 Command.newBuilder()
                         .setId(allMachineIDs.getIDsList().get(0))

@@ -9,12 +9,15 @@ import supervisormanager.Void;
 
 import java.util.stream.Collectors;
 
+/**
+ * The supervisor server.
+ */
 public class ServerSupervisor extends SupervisorManagerGrpc.SupervisorManagerImplBase {
 
-    private final ManagedMachines managedMachines;
+    private final MachinesManager machinesManager;
 
-    public ServerSupervisor(ManagedMachines managedMachines) {
-        this.managedMachines = managedMachines;
+    public ServerSupervisor(MachinesManager machinesManager) {
+        this.machinesManager = machinesManager;
     }
 
     @Override
@@ -22,7 +25,7 @@ public class ServerSupervisor extends SupervisorManagerGrpc.SupervisorManagerImp
                                StreamObserver<AllMachineIDs> responseObserver) {
         responseObserver.onNext(AllMachineIDs.newBuilder()
                 .addAllIDs(
-                        managedMachines.getMachineIds().stream().map(id ->
+                        machinesManager.getMachineIds().stream().map(id ->
                                 MachID.newBuilder().setID(id).build()
                         ).collect(Collectors.toList()))
                 .build());
@@ -32,7 +35,7 @@ public class ServerSupervisor extends SupervisorManagerGrpc.SupervisorManagerImp
     @Override
     public void sendCommandToMachine(Command request,
                                      StreamObserver<Void> responseObserver) {
-        managedMachines.sendCommandToMachine(request);
+        machinesManager.sendCommandToMachine(request);
         responseObserver.onNext(Void.newBuilder().build());
         responseObserver.onCompleted();
     }

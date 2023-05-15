@@ -10,28 +10,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+/**
+ * Client application that sends temperature information to the server.
+ * It also receives configuration information from the server.
+ */
 public class ClientApp {
-    private static final int svcPort = 8000;
-    private static final String svcIP = "localhost";
-    public static StreamObserver<Information> serverStreamObserver;
-    public static boolean running = true;
-    public static boolean restarting = false;
-    public static Map<Integer, String> config = new HashMap<>();
-    private static ManagedChannel channel;
-    private static MachinesManagerContractGrpc.MachinesManagerContractStub stub;
+    private static final int SVC_PORT = 8000;
+    private static final String SVC_IP = "localhost";
 
+    static StreamObserver<Information> serverStreamObserver;
+    static boolean running = true;
+    static boolean restarting = false;
+    static Map<Integer, String> config = new HashMap<>();
+    private static final int TEMPERATURE_THRESHOLD = 5000;
+
+    /**
+     * Sends the temperature information to the server periodically.
+     */
     private static void sendTemperaturePeriodically() {
+        Random random = new Random();
         new Thread(() -> {
             while (running) {
-                double temperature = ((new Random().nextDouble() * 100) + 10);
-
+                double temperature = ((random.nextDouble() * 100) + 10);
                 serverStreamObserver.onNext(Information.newBuilder()
                         .setTemperature(temperature)
                         .build()
                 );
 
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(TEMPERATURE_THRESHOLD);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -41,18 +48,18 @@ public class ClientApp {
 
     public static void main(String[] args) {
         try {
-            channel = ManagedChannelBuilder.forAddress(svcIP, svcPort)
+            ManagedChannel channel = ManagedChannelBuilder
+                    .forAddress(SVC_IP, SVC_PORT)
                     .usePlaintext()
                     .build();
-            stub = MachinesManagerContractGrpc.newStub(channel);
+            MachinesManagerContractGrpc.MachinesManagerContractStub stub = MachinesManagerContractGrpc.newStub(channel);
 
             ClientStreamObserver clientStreamObserver = new ClientStreamObserver();
-
             serverStreamObserver = stub.connectToManager(clientStreamObserver);
 
             sendTemperaturePeriodically();
 
-            while (true) {
+            while (running) {
                 if (restarting) {
                     restarting = false;
                     running = true;
