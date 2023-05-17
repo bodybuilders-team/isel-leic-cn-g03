@@ -17,6 +17,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * Console client for the Landmarks service.
+ */
 public class LandmarksClient {
 
     private static final int SVC_PORT = 8000;
