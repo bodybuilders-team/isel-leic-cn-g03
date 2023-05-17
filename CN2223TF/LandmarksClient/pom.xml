@@ -17,11 +17,11 @@
 
     <dependencies>
         <!--Contract-->
-        <!--<dependency>
+        <dependency>
             <groupId>pt.isel.cn.landmarks</groupId>
             <artifactId>LandmarksContract</artifactId>
             <version>1.0</version>
-        </dependency>-->
+        </dependency>
     </dependencies>
 
     <build>

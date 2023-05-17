@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "landmarks";
+
+package landmarks;
+
+service LandmarksContract {
+  rpc submitImage(stream SubmitImageRequest) returns (SubmitImageResponse) {}
+  rpc getResults(GetResultsRequest) returns (GetResultsResponse) {}
+  rpc getIdentifiedPhotos(GetIdentifiedPhotosRequest) returns (GetIdentifiedPhotosResponse) {}
+}
+
+// submitImage
+message SubmitImageRequest {
+  bytes image_data = 1;
+}
+
+message SubmitImageResponse {
+  string request_id = 1;
+}
+
+
+// getResults
+message GetResultsRequest {
+  string request_id = 1;
+}
+
+message GetResultsResponse {
+  repeated Landmark landmarks = 1;
+  ImageMap map = 2;
+}
+
+message Landmark {
+  string name = 1;
+  double latitude = 2;
+  double longitude = 3;
+  float confidence = 4;
+}
+
+message ImageMap {
+  bytes image_data = 1;
+}
+
+
+// getIdentifiedPhotos
+message GetIdentifiedPhotosRequest {
+  float confidence_threshold = 1;
+}
+
+message GetIdentifiedPhotosResponse {
+  repeated IdentifiedPhoto identified_photos = 1;
+}
+
+message IdentifiedPhoto {
+  string photo_name = 1;
+  string landmark_name = 2;
+}
