@@ -1,5 +1,7 @@
 package pt.isel.cn.landmarks.domain;
 
+import com.google.cloud.Timestamp;
+
 /**
  * A landmark detection request.
  * <p>
@@ -7,7 +9,7 @@ package pt.isel.cn.landmarks.domain;
  */
 public class Request {
     private final String requestId;
-    private final long timestamp;
+    private final Timestamp timestamp;
     private final String imageUrl;
     private final String status;
     private final Landmark[] landmarks;
@@ -21,7 +23,7 @@ public class Request {
      * @param status    The status of the request.
      * @param landmarks The landmarks detected in the image, after the request is processed.
      */
-    public Request(String requestId, long timestamp, String imageUrl, String status, Landmark[] landmarks) {
+    public Request(String requestId, Timestamp timestamp, String imageUrl, String status, Landmark[] landmarks) {
         this.requestId = requestId;
         this.timestamp = timestamp;
         this.imageUrl = imageUrl;
@@ -31,7 +33,7 @@ public class Request {
 
     public String getRequestId() {return requestId;}
 
-    public long getTimestamp() {return timestamp;}
+    public Timestamp getTimestamp() {return timestamp;}
 
     public String getImageUrl() {return imageUrl;}
 

@@ -1,5 +1,6 @@
 package pt.isel.cn.landmarks.storage.metadata;
 
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.Firestore;
 import pt.isel.cn.landmarks.domain.Landmark;
 import pt.isel.cn.landmarks.domain.Request;
@@ -7,6 +8,9 @@ import pt.isel.cn.landmarks.domain.Request;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of the {@link MetadataStorage} interface that uses Firestore.
+ */
 public class FirestoreService implements MetadataStorage {
 
     private final Firestore service;
@@ -16,19 +20,11 @@ public class FirestoreService implements MetadataStorage {
         this.service = service;
     }
 
-    /*
-    Document -> Request
-      - request-id                  (Server generated)
-      - timestamp                   (Server generated)
-      - image-url                   (Client provided)
-      - status: [PENDING, DONE]     (Server generated)
-      - landmarks: [Landmark]       (Landmarks detected by the worker)
-     */
     @Override
-    public void storeRequestMetadata(String requestId, String imageUrl) {
+    public void storeRequestMetadata(String requestId, String timestamp, String imageUrl) {
         Request request = new Request(
                 requestId,
-                System.currentTimeMillis(),
+                Timestamp.parseTimestamp(timestamp),
                 imageUrl,
                 "PENDING",
                 null

@@ -11,10 +11,13 @@ import pt.isel.cn.landmarks.domain.Landmark;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+/**
+ * Implementation of the {@link DataStorage} interface that uses Google Cloud Storage.
+ */
 public class CloudStorageService implements DataStorage {
 
     private final Storage storage;
-    private final String BUCKET_NAME = "landmarks-maps";
+    private static final String BUCKET_NAME = "landmarks-maps";
 
     public CloudStorageService(Storage storage) {
         this.storage = storage;
@@ -25,16 +28,26 @@ public class CloudStorageService implements DataStorage {
         return "gs://" + bucketName + "/" + blobName;
     }
 
+    @Override
+    public void storeLandmarkMap(Landmark landmark) {
+        try {
+            uploadBlobToBucket(landmark.getName(), landmark.getMap());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        makeBlobPublic(landmark.getName());
+    }
+
     /**
      * Uploads a blob to the bucket.
      *
-     * @param bucketName the name of the bucket
-     * @param blobName   the name of the blob
-     * @param blob       the blob's content
+     * @param blobName the name of the blob
+     * @param blob     the blob's content
      * @throws IOException on IO error
      */
-    public void uploadBlobToBucket(String bucketName, String blobName, byte[] blob) throws IOException {
-        BlobId blobId = BlobId.of(bucketName, blobName);
+    private void uploadBlobToBucket(String blobName, byte[] blob) throws IOException {
+        BlobId blobId = BlobId.of(CloudStorageService.BUCKET_NAME, blobName);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
 
         if (blob.length > 1_000_000) {
@@ -61,11 +74,10 @@ public class CloudStorageService implements DataStorage {
     /**
      * Makes a blob public.
      *
-     * @param bucketName the name of the bucket
-     * @param blobName   the name of the blob
+     * @param blobName the name of the blob
      */
-    public void makeBlobPublic(String bucketName, String blobName) {
-        BlobId blobId = BlobId.of(bucketName, blobName);
+    private void makeBlobPublic(String blobName) {
+        BlobId blobId = BlobId.of(CloudStorageService.BUCKET_NAME, blobName);
         Blob blob = storage.get(blobId);
         if (blob == null)
             throw new IllegalArgumentException("No such Blob exists!");
@@ -75,17 +87,5 @@ public class CloudStorageService implements DataStorage {
 
         Acl acl = Acl.newBuilder(aclEnt, role).build();
         blob.createAcl(acl);
-    }
-
-
-    @Override
-    public void storeLandmarkMap(Landmark landmark) {
-        try {
-            uploadBlobToBucket(BUCKET_NAME, landmark.getName(), landmark.getMap());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        makeBlobPublic(BUCKET_NAME, landmark.getName());
     }
 }

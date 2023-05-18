@@ -1,4 +1,4 @@
-package pt.isel.cn.landmarks.service.landmarks;
+package pt.isel.cn.landmarks.services.landmarks;
 
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Implements the {@link LandmarksService} using the Google Vision API.
  */
-public class LandmarksServiceVision implements LandmarksService {
+public class LandmarksVisionService implements LandmarksService {
 
     @Override
     public List<Landmark> detectLandmarks(String imageLocation) throws IOException {

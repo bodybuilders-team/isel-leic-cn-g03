@@ -1,4 +1,4 @@
-package pt.isel.cn.landmarks.service.map;
+package pt.isel.cn.landmarks.services.maps;
 
 import pt.isel.cn.landmarks.domain.Location;
 
@@ -11,11 +11,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 /**
- * Implements the {@link MapService} interface using the Google Maps Static API.
+ * Implements the {@link MapsService} interface using the Google Maps Static API.
  *
  * @see <a href="https://developers.google.com/maps/documentation/maps-static/start#introduction">Google Maps Static API</a>
  */
-public class MapServiceMapsStatic implements MapService {
+public class MapsStaticService implements MapsService {
 
     private static final String API_KEY = System.getenv("GOOGLE_MAPS_API_KEY");
     private static final String API_URL = "https://maps.googleapis.com/maps/api/staticmap?";
@@ -51,6 +51,6 @@ public class MapServiceMapsStatic implements MapService {
             e.printStackTrace();
         }
 
-        return null;
+        return new byte[0];
     }
 }

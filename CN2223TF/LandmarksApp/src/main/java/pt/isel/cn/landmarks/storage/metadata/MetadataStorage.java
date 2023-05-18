@@ -13,7 +13,7 @@ public interface MetadataStorage {
      * @param requestId The id of the request.
      * @param imageUrl  The url of the image to be processed.
      */
-    void storeRequestMetadata(String requestId, String imageUrl);
+    void storeRequestMetadata(String requestId, String timestamp, String imageUrl);
 
     /**
      * Stores the metadata of a landmark.

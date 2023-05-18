@@ -1,11 +1,11 @@
-package pt.isel.cn.landmarks.service.map;
+package pt.isel.cn.landmarks.services.maps;
 
 import pt.isel.cn.landmarks.domain.Location;
 
 /**
  * Obtains static maps based on locations.
  */
-public interface MapService {
+public interface MapsService {
 
     /**
      * Retrieves a static map image based on the provided location.
