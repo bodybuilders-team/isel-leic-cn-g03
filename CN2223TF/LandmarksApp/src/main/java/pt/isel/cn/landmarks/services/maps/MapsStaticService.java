@@ -1,5 +1,6 @@
 package pt.isel.cn.landmarks.services.maps;
 
+import pt.isel.cn.landmarks.LandmarksLogger;
 import pt.isel.cn.landmarks.domain.Location;
 
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class MapsStaticService implements MapsService {
                 response.body().close();
                 return image;
             } else {
-                System.out.println("Failed to retrieve the static map. Response code: " + response.statusCode());
+                LandmarksLogger.logger.severe("Failed to retrieve the static map. Response code: " + response.statusCode());
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

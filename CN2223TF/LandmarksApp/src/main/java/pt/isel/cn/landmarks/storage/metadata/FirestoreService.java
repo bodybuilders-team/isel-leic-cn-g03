@@ -5,8 +5,7 @@ import com.google.cloud.firestore.Firestore;
 import pt.isel.cn.landmarks.domain.Landmark;
 import pt.isel.cn.landmarks.domain.Request;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Implementation of the {@link MetadataStorage} interface that uses Firestore.
@@ -36,15 +35,10 @@ public class FirestoreService implements MetadataStorage {
     }
 
     @Override
-    public void storeLandmarkMetadata(String requestId, Landmark landmark) {
-        Map<String, Object> landmarkMap = new HashMap<>(); // Maybe create a class for this
-        landmarkMap.put("name", landmark.getName());
-        landmarkMap.put("location", landmark.getLocation());
-        landmarkMap.put("confidence", landmark.getConfidence());
-
+    public void storeLandmarksMetadata(String requestId, List<Landmark> landmarks) {
         service.collection(COLLECTION_NAME)
                 .document(requestId)
-                .update("landmarks", landmarkMap,
+                .update("landmarks", landmarks,
                         "status", "DONE"
                 );
     }

@@ -2,6 +2,8 @@ package pt.isel.cn.landmarks.storage.metadata;
 
 import pt.isel.cn.landmarks.domain.Landmark;
 
+import java.util.List;
+
 /**
  * Interface for storing metadata about the requests and landmarks.
  */
@@ -16,10 +18,10 @@ public interface MetadataStorage {
     void storeRequestMetadata(String requestId, String timestamp, String imageUrl);
 
     /**
-     * Stores the metadata of a landmark.
+     * Stores the metadata of the landmarks.
      *
      * @param requestId The id of the request that generated the landmark.
-     * @param landmark  The landmark to be stored.
+     * @param landmarks The landmarks to be stored.
      */
-    void storeLandmarkMetadata(String requestId, Landmark landmark);
+    void storeLandmarksMetadata(String requestId, List<Landmark> landmarks);
 }

@@ -58,6 +58,8 @@ public class LandmarksWorker implements Runnable {
     public void run() {
         pubsubService.subscribe(PROJECT_ID, SUBSCRIPTION_ID, new MessageReceiveHandler(
                 (String requestId, String timestamp, String bucketName, String blobName) -> {
+                    LandmarksLogger.logger.info("Received request: " + requestId);
+
                     String imageUrl = dataStorage.getImageLocation(bucketName, blobName);
 
                     try {
@@ -65,7 +67,9 @@ public class LandmarksWorker implements Runnable {
                         metadataStorage.storeRequestMetadata(requestId, timestamp, imageUrl);
 
                         // Process the image
+                        LandmarksLogger.logger.info("Processing image: " + imageUrl);
                         List<Landmark> landmarks = landmarksService.detectLandmarks(imageUrl);
+                        LandmarksLogger.logger.info("Found " + landmarks.size() + " landmarks");
 
                         landmarks.forEach(landmark -> {
                             // Get the map for the landmark
@@ -74,10 +78,12 @@ public class LandmarksWorker implements Runnable {
 
                             // Store the map in the Cloud Storage
                             dataStorage.storeLandmarkMap(landmark);
-
-                            // Store the metadata in the Firestore
-                            metadataStorage.storeLandmarkMetadata(requestId, landmark);
                         });
+
+                        // Store the metadata in the Firestore
+                        metadataStorage.storeLandmarksMetadata(requestId, landmarks);
+
+                        LandmarksLogger.logger.info("Finished processing request: " + requestId);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

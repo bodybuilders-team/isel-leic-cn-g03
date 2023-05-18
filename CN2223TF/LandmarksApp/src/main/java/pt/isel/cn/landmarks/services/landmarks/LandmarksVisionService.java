@@ -9,6 +9,7 @@ import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageSource;
 import com.google.cloud.vision.v1.LocationInfo;
+import pt.isel.cn.landmarks.LandmarksLogger;
 import pt.isel.cn.landmarks.domain.Landmark;
 import pt.isel.cn.landmarks.domain.Location;
 
@@ -41,7 +42,7 @@ public class LandmarksVisionService implements LandmarksService {
 
             for (AnnotateImageResponse res : responses) {
                 if (res.hasError())
-                    System.out.format("Error: %s%n", res.getError().getMessage());
+                    LandmarksLogger.logger.severe("Error: " + res.getError().getMessage());
 
                 // For full list of available annotations, see http://g.co/cloud/vision/docs
                 for (EntityAnnotation annotation : res.getLandmarkAnnotationsList()) {

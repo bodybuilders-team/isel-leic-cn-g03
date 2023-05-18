@@ -34,7 +34,7 @@ public class Main {
         MapsService mapsService = new MapsStaticService();
         PubsubService pubsubService = new GooglePubsubService();
 
-        // Start the Worker
+        LandmarksLogger.logger.info("LandmarksApp worker starting...");
         LandmarksWorker worker = new LandmarksWorker(
                 dataStorage,
                 metadataStorage,
@@ -43,5 +43,6 @@ public class Main {
                 pubsubService
         );
         worker.run();
+        LandmarksLogger.logger.info("LandmarksApp worker started.");
     }
 }
