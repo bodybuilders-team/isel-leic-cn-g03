@@ -9,7 +9,8 @@ import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageSource;
 import com.google.cloud.vision.v1.LocationInfo;
-import pt.isel.cn.landmarks.model.Landmark;
+import pt.isel.cn.landmarks.domain.Landmark;
+import pt.isel.cn.landmarks.domain.Location;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,8 +48,7 @@ public class LandmarksServiceVision implements LandmarksService {
                     LocationInfo info = annotation.getLocationsList().listIterator().next();
                     landmarks.add(new Landmark(
                             annotation.getDescription(),
-                            info.getLatLng().getLatitude(),
-                            info.getLatLng().getLongitude(),
+                            new Location(info.getLatLng().getLatitude(), info.getLatLng().getLongitude()),
                             annotation.getScore()
                     ));
                 }

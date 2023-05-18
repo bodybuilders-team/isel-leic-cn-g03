@@ -1,7 +1,7 @@
 package pt.isel.cn.landmarks.service.landmarks;
 
 
-import pt.isel.cn.landmarks.model.Landmark;
+import pt.isel.cn.landmarks.domain.Landmark;
 
 import java.io.IOException;
 import java.util.List;

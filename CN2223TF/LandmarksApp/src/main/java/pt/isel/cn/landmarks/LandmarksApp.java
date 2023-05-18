@@ -2,12 +2,15 @@ package pt.isel.cn.landmarks;
 
 import com.google.api.gax.core.ExecutorProvider;
 import com.google.api.gax.core.InstantiatingExecutorProvider;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.pubsub.v1.AckReplyConsumer;
 import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.cloud.pubsub.v1.Subscriber;
+import com.google.cloud.storage.StorageOptions;
 import com.google.pubsub.v1.ProjectSubscriptionName;
 import com.google.pubsub.v1.PubsubMessage;
-import pt.isel.cn.landmarks.model.Landmark;
+import pt.isel.cn.landmarks.domain.Landmark;
 import pt.isel.cn.landmarks.service.landmarks.LandmarksService;
 import pt.isel.cn.landmarks.service.landmarks.LandmarksServiceVision;
 import pt.isel.cn.landmarks.service.map.MapService;
@@ -22,7 +25,7 @@ import java.util.List;
 
 
 /**
- * Worker for the Landmarks application.
+ * Worker for the Landmarks Detector application.
  */
 public class LandmarksApp {
 
@@ -40,10 +43,12 @@ public class LandmarksApp {
      *
      * @param args The command line arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Initialize the application
-        dataStorage = new CloudStorageService();
-        metadataStorage = new FirestoreService();
+        GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
+
+        dataStorage = new CloudStorageService(StorageOptions.getDefaultInstance().getService());
+        metadataStorage = new FirestoreService(FirestoreOptions.getDefaultInstance().getService()); // TODO: REMOVE COMMENT IF THIS WORK
         landmarksService = new LandmarksServiceVision();
         mapService = new MapServiceMapsStatic();
 
@@ -67,22 +72,37 @@ public class LandmarksApp {
 
         // Messages contain:
         // - requestId: the id of the request
+        // - timestamp: the timestamp of the request
         // - bucket: the name of the bucket where the image is stored
         // - blob: the name of the image blob
         @Override
         public void receiveMessage(PubsubMessage message, AckReplyConsumer replyConsumer) {
             System.out.println("Received message: " + message.getData().toStringUtf8());
 
+            String requestId = message.getAttributesOrThrow("requestId");
+            String timestamp = message.getAttributesOrThrow("timestamp");
             String bucketName = message.getAttributesOrThrow("bucket");
             String blobName = message.getAttributesOrThrow("blob");
-            String imageLocation = dataStorage.getImageLocation(bucketName, blobName);
+            String imageUrl = dataStorage.getImageLocation(bucketName, blobName);
 
             try {
-                // Process the image
-                List<Landmark> landmarks = landmarksService.detectLandmarks(imageLocation);
+                // Store the metadata in the Firestore
+                metadataStorage.storeRequestMetadata(requestId, imageUrl);
 
-                // Obtain static map
-                // mapService.getStaticMap()
+                // Process the image
+                List<Landmark> landmarks = landmarksService.detectLandmarks(imageUrl);
+
+                landmarks.forEach(landmark -> {
+                    // Get the map for the landmark
+                    byte[] map = mapService.getStaticMap(landmark.getLocation());
+                    landmark.setMap(map);
+
+                    // Store the map in the Cloud Storage
+                    dataStorage.storeLandmarkMap(landmark);
+
+                    // Store the metadata in the Firestore
+                    metadataStorage.storeLandmarkMetadata(requestId, landmark);
+                });
             } catch (IOException e) {
                 e.printStackTrace();
             }
