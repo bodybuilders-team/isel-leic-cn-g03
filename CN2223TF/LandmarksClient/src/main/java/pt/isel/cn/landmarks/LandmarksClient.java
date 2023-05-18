@@ -10,7 +10,7 @@ import landmarks.GetResultsRequest;
 import landmarks.GetResultsResponse;
 import landmarks.IdentifiedPhoto;
 import landmarks.Landmark;
-import landmarks.LandmarksContractGrpc;
+import landmarks.LandmarksServiceGrpc;
 import landmarks.SubmitImageRequest;
 
 import java.io.FileInputStream;
@@ -27,10 +27,9 @@ public class LandmarksClient {
 
     private static final int BLOCK_SIZE = 4096; // 4KB buffer
 
-    public static LandmarksContractGrpc.LandmarksContractStub stub;
-    public static LandmarksContractGrpc.LandmarksContractBlockingStub blockingStub;
+    public static LandmarksServiceGrpc.LandmarksServiceStub stub;
+    public static LandmarksServiceGrpc.LandmarksServiceBlockingStub blockingStub;
     private static ManagedChannel channel;
-
 
     /**
      * Entry point for the Landmarks client.
@@ -43,8 +42,8 @@ public class LandmarksClient {
         channel = ManagedChannelBuilder.forAddress(SVC_IP, SVC_PORT)
                 .usePlaintext()
                 .build();
-        stub = LandmarksContractGrpc.newStub(channel);
-        blockingStub = LandmarksContractGrpc.newBlockingStub(channel);
+        stub = LandmarksServiceGrpc.newStub(channel);
+        blockingStub = LandmarksServiceGrpc.newBlockingStub(channel);
 
         boolean end = false;
         while (!end) {

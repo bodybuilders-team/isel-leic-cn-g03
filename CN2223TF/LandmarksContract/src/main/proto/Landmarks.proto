@@ -5,7 +5,7 @@ option java_package = "landmarks";
 
 package landmarks;
 
-service LandmarksContract {
+service LandmarksService {
   rpc submitImage(stream SubmitImageRequest) returns (SubmitImageResponse) {}
   rpc getResults(GetResultsRequest) returns (GetResultsResponse) {}
   rpc getIdentifiedPhotos(GetIdentifiedPhotosRequest) returns (GetIdentifiedPhotosResponse) {}
