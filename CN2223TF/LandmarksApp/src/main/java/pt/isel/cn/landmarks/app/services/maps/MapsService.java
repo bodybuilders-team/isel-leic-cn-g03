@@ -10,8 +10,8 @@ public interface MapsService {
     /**
      * Retrieves a static map image based on the provided location.
      *
-     * @param location The location for which to retrieve the static map.
-     * @return The static map image as a Result object.
+     * @param location the location for which to retrieve the static map
+     * @return the static map image as a byte array
      */
     byte[] getStaticMap(Location location);
 }

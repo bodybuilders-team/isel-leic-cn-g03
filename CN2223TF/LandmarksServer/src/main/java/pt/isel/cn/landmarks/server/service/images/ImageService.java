@@ -1,9 +1,30 @@
 package pt.isel.cn.landmarks.server.service.images;
 
+import com.google.api.core.ApiFuture;
+import com.google.cloud.pubsub.v1.Publisher;
+import com.google.pubsub.v1.PubsubMessage;
+import com.google.pubsub.v1.TopicName;
+import pt.isel.cn.landmarks.server.storage.data.CloudDataStorage;
+
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-public interface ImageService {
+/**
+ * Service for handling operations related to the image upload.
+ */
+public class ImageService {
+
+    private static final String PROJECT_ID = "cn2223-t1-g03";
+    private static final String TOPIC_ID = "landmarks";
+    private static final String IMAGES_BUCKET_NAME = "landmarks-images";
+
+    CloudDataStorage cloudDataStorage;
+
+    public ImageService(CloudDataStorage cloudDataStorage) {
+        this.cloudDataStorage = cloudDataStorage;
+    }
 
     /**
      * Uploads an image.
@@ -11,7 +32,19 @@ public interface ImageService {
      * @param imageBytes the image in byte array form
      * @return the location of the uploaded image
      */
-    String uploadImage(byte[] imageBytes);
+    public String uploadImage(byte[] imageBytes) {
+        String blobName = UUID.randomUUID().toString();
+
+        try {
+            cloudDataStorage.uploadBlobToBucket(IMAGES_BUCKET_NAME, blobName, imageBytes, "image/png");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        cloudDataStorage.makeBlobPublic(IMAGES_BUCKET_NAME, blobName);
+
+        return blobName;
+    }
 
     /**
      * Notifies the app that an image was uploaded.
@@ -19,5 +52,17 @@ public interface ImageService {
      * @param requestId     the id of the request
      * @param imageLocation the location of the uploaded image
      */
-    void notifyImageUploaded(String requestId, String imageLocation) throws IOException, ExecutionException, InterruptedException;
+    public void notifyImageUploaded(String requestId, String imageLocation) throws IOException, ExecutionException, InterruptedException {
+        TopicName tName = TopicName.ofProjectTopicName(PROJECT_ID, TOPIC_ID);
+        Publisher publisher = Publisher.newBuilder(tName).build();
+        PubsubMessage pubsubMessage = PubsubMessage.newBuilder()
+                .putAttributes("requestId", requestId)
+                .putAttributes("timestamp", LocalDateTime.now().toString())
+                .putAttributes("bucket", IMAGES_BUCKET_NAME)
+                .putAttributes("blob", imageLocation)
+                .build();
+        ApiFuture<String> future = publisher.publish(pubsubMessage);
+        future.get();
+        publisher.shutdown();
+    }
 }

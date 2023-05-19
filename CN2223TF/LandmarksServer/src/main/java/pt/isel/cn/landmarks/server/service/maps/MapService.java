@@ -17,8 +17,7 @@ public class MapService {
     public byte[] getMapImage(String mapBlobName) {
         try {
             return cloudDataStorage.downloadBlobFromBucket(MAPS_BUCKET_NAME, mapBlobName);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             return null;
         }
     }

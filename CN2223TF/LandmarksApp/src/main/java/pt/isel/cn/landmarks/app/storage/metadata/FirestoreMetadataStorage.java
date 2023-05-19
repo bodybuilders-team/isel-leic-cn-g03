@@ -26,11 +26,11 @@ public class FirestoreMetadataStorage implements MetadataStorage {
     }
 
     @Override
-    public void storeLandmarksMetadata(String requestId, List<LandmarkMetadata> landmarks) {
+    public void updateLandmarksAndStatus(String requestId, List<LandmarkMetadata> landmarks, String status) {
         service.collection(COLLECTION_NAME)
                 .document(requestId)
                 .update("landmarks", landmarks,
-                        "status", "DONE"
+                        "status", status
                 );
     }
 }

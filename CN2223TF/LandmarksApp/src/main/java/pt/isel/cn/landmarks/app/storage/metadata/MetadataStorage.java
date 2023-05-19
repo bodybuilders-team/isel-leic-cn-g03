@@ -18,10 +18,11 @@ public interface MetadataStorage {
     void storeRequestMetadata(RequestMetadata requestMetadata);
 
     /**
-     * Stores the metadata of the landmarks.
+     * Updates the request metadata with landmarks and status.
      *
-     * @param requestId the id of the request that generated the landmark
+     * @param requestId the id of the request
      * @param landmarks the landmarks to be stored
+     * @param status    the status of the request
      */
-    void storeLandmarksMetadata(String requestId, List<LandmarkMetadata> landmarks);
+    void updateLandmarksAndStatus(String requestId, List<LandmarkMetadata> landmarks, String status);
 }

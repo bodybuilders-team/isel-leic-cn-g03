@@ -3,7 +3,7 @@ package pt.isel.cn.landmarks.app;
 import pt.isel.cn.landmarks.app.domain.Landmark;
 import pt.isel.cn.landmarks.app.domain.LandmarkMetadata;
 import pt.isel.cn.landmarks.app.services.datastorage.DataStorageService;
-import pt.isel.cn.landmarks.app.services.landmarks.LandmarksService;
+import pt.isel.cn.landmarks.app.services.landmarks.LandmarkDetectionService;
 import pt.isel.cn.landmarks.app.services.maps.MapsService;
 import pt.isel.cn.landmarks.app.services.metadatastorage.MetadataService;
 import pt.isel.cn.landmarks.app.services.pubsub.MessageReceiveHandler;
@@ -22,29 +22,29 @@ public class LandmarksWorker implements Runnable {
     // TODO: review the names of the classes and interfaces
     private final MetadataService metadataService;
     private final DataStorageService dataStorageService;
-    private final LandmarksService landmarksService;
+    private final LandmarkDetectionService landmarkDetectionService;
     private final MapsService mapsService;
     private final PubsubService pubsubService;
 
     /**
      * Constructor for the worker.
      *
-     * @param metadataService    the metadata storage service
-     * @param dataStorageService the data storage service
-     * @param landmarksService   the landmarks service
-     * @param mapsService        the map service
-     * @param pubsubService      the Pub/Sub service
+     * @param metadataService          the metadata storage service
+     * @param dataStorageService       the data storage service
+     * @param landmarkDetectionService the landmarks service
+     * @param mapsService              the map service
+     * @param pubsubService            the Pub/Sub service
      */
     public LandmarksWorker(
             MetadataService metadataService,
             DataStorageService dataStorageService,
-            LandmarksService landmarksService,
+            LandmarkDetectionService landmarkDetectionService,
             MapsService mapsService,
             PubsubService pubsubService
     ) {
         this.metadataService = metadataService;
         this.dataStorageService = dataStorageService;
-        this.landmarksService = landmarksService;
+        this.landmarkDetectionService = landmarkDetectionService;
         this.mapsService = mapsService;
         this.pubsubService = pubsubService;
     }
@@ -67,7 +67,7 @@ public class LandmarksWorker implements Runnable {
 
                         // Process the image
                         LandmarksLogger.logger.info("Processing image: " + imageUrl);
-                        List<Landmark> landmarks = landmarksService.detectLandmarks(imageUrl);
+                        List<Landmark> landmarks = landmarkDetectionService.detectLandmarks(imageUrl);
                         LandmarksLogger.logger.info("Found " + landmarks.size() + " landmarks");
 
                         List<LandmarkMetadata> landmarkMetadataList = landmarks.stream().map(landmark -> {

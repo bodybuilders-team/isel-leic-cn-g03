@@ -1,11 +1,22 @@
 package pt.isel.cn.landmarks.app.services.datastorage;
 
 import pt.isel.cn.landmarks.app.domain.Landmark;
+import pt.isel.cn.landmarks.app.storage.data.CloudDataStorage;
+
+import java.io.IOException;
 
 /**
- * The interface for the data storage service that handles image and map data.
+ * The data storage service that handles image and map data.
  */
-public interface DataStorageService {
+public class DataStorageService {
+
+    private static final String MAPS_BUCKET_NAME = "landmarks-maps";
+
+    private final CloudDataStorage cloudDataStorage;
+
+    public DataStorageService(CloudDataStorage cloudDataStorage) {
+        this.cloudDataStorage = cloudDataStorage;
+    }
 
     /**
      * Gets the image location for the provided bucket and blob names.
@@ -14,7 +25,9 @@ public interface DataStorageService {
      * @param blobName   the name of the blob
      * @return the image location
      */
-    String getImageLocation(String bucketName, String blobName);
+    public String getImageLocation(String bucketName, String blobName) {
+        return cloudDataStorage.getBlobLocation(bucketName, blobName);
+    }
 
     /**
      * Stores the landmark map.
@@ -22,5 +35,15 @@ public interface DataStorageService {
      * @param landmark the landmark whose map to store
      * @return the map blob name
      */
-    String storeLandmarkMap(Landmark landmark);
+    public String storeLandmarkMap(Landmark landmark) {
+        try {
+            cloudDataStorage.uploadBlobToBucket(MAPS_BUCKET_NAME, landmark.getName(), landmark.getMap(), "image/png");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        cloudDataStorage.makeBlobPublic(MAPS_BUCKET_NAME, landmark.getName());
+
+        return landmark.getName();
+    }
 }

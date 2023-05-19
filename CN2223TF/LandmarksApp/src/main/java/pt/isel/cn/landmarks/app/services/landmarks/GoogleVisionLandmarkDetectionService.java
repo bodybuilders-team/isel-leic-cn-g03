@@ -18,9 +18,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements the {@link LandmarksService} using the Google Vision API.
+ * Implements the {@link LandmarkDetectionService} using the Google Vision API.
+ * <p>
+ * Google Vision API is a service that allows to detect a variety of different things in images. In this case,
+ * it is used to detect landmarks in images.
+ *
+ * @see <a href="https://cloud.google.com/vision">Google Vision API</a>
  */
-public class LandmarksVisionService implements LandmarksService {
+public class GoogleVisionLandmarkDetectionService implements LandmarkDetectionService {
 
     @Override
     public List<Landmark> detectLandmarks(String imageLocation) throws IOException {

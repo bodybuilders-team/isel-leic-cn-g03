@@ -6,7 +6,6 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import landmarks.LandmarksServiceGrpc;
 import pt.isel.cn.landmarks.server.service.images.ImageService;
-import pt.isel.cn.landmarks.server.service.images.ImageServiceImpl;
 import pt.isel.cn.landmarks.server.service.maps.MapService;
 import pt.isel.cn.landmarks.server.storage.data.CloudDataStorage;
 import pt.isel.cn.landmarks.server.storage.data.GoogleCloudDataStorage;
@@ -35,7 +34,7 @@ public class Main {
      */
     public static void main(String[] args) throws IOException {
         CloudDataStorage cloudDataStorage = new GoogleCloudDataStorage(StorageOptions.getDefaultInstance().getService());
-        ImageService imageService = new ImageServiceImpl(cloudDataStorage);
+        ImageService imageService = new ImageService(cloudDataStorage);
         MapService mapService = new MapService(cloudDataStorage);
         MetadataStorage metadataStorage = new FirestoreMetadataStorage(FirestoreOptions.getDefaultInstance().getService());
 

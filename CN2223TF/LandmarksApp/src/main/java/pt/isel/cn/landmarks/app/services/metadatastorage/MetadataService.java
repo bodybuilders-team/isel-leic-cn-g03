@@ -38,12 +38,12 @@ public class MetadataService {
     }
 
     /**
-     * Stores the metadata of the landmarks.
+     * Stores the landmarks in the request metadata and updates the status to "DONE".
      *
-     * @param requestId The id of the request that generated the landmark.
-     * @param landmarks The landmarks to be stored.
+     * @param requestId the id of the request
+     * @param landmarks the landmarks to be stored
      */
     public void storeLandmarksMetadata(String requestId, List<LandmarkMetadata> landmarks) {
-        metadataStorage.storeLandmarksMetadata(requestId, landmarks);
+        metadataStorage.updateLandmarksAndStatus(requestId, landmarks, "DONE");
     }
 }

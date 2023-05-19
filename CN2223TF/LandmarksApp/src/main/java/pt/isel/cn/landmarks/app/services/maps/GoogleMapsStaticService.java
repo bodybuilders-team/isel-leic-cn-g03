@@ -16,7 +16,7 @@ import java.net.http.HttpResponse;
  *
  * @see <a href="https://developers.google.com/maps/documentation/maps-static/start#introduction">Google Maps Static API</a>
  */
-public class MapsStaticService implements MapsService {
+public class GoogleMapsStaticService implements MapsService {
 
     private static final String API_KEY = System.getenv("GOOGLE_MAPS_API_KEY");
     private static final String API_URL = "https://maps.googleapis.com/maps/api/staticmap?";

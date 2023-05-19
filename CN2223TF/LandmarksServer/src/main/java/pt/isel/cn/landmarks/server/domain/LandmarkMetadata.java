@@ -3,7 +3,7 @@ package pt.isel.cn.landmarks.server.domain;
 /**
  * Metadata for the landmark detected in an image.
  * <p>
- * A landmark represents a real-world point of interest, either a physical
+ * A landmark represents a real-world point of interest.
  * Contains the name and location of the landmark, the confidence score for the
  * detection of the landmark, and may contain the detected landmark map blob name.
  */

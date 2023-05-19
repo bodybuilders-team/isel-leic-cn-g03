@@ -77,10 +77,10 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
                         .build())
                 .addAllLandmarks(landmarkMetadataList.stream().map(landmarkMetadata ->
                         landmarks.Landmark.newBuilder()
-                                .setConfidence(landmarkMetadata.getConfidence())
+                                .setName(landmarkMetadata.getName())
                                 .setLatitude(landmarkMetadata.getLocation().getLatitude())
                                 .setLongitude(landmarkMetadata.getLocation().getLongitude())
-                                .setName(landmarkMetadata.getName())
+                                .setConfidence(landmarkMetadata.getConfidence())
                                 .build()
                 ).collect(Collectors.toList()))
                 .build()
@@ -147,9 +147,7 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
 
                 imageService.notifyImageUploaded(requestId, blobName);
             } catch (IOException | ExecutionException | InterruptedException e) {
-                responseObserver.onError(new RuntimeException(
-                        String.format("Error during image upload of request with id %s", requestId))
-                );
+                System.out.printf("Error during image upload of request with id %s", requestId);
             }
         }
     }
