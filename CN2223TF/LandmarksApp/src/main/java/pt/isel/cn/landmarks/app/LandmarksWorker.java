@@ -5,9 +5,9 @@ import pt.isel.cn.landmarks.app.domain.LandmarkMetadata;
 import pt.isel.cn.landmarks.app.services.datastorage.DataStorageService;
 import pt.isel.cn.landmarks.app.services.landmarks.LandmarkDetectionService;
 import pt.isel.cn.landmarks.app.services.maps.MapsService;
-import pt.isel.cn.landmarks.app.services.metadatastorage.MetadataService;
+import pt.isel.cn.landmarks.app.services.metadata.MetadataService;
+import pt.isel.cn.landmarks.app.services.pubsub.LandmarksGooglePubsubService;
 import pt.isel.cn.landmarks.app.services.pubsub.MessageReceiveHandler;
-import pt.isel.cn.landmarks.app.services.pubsub.PubsubService;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +24,7 @@ public class LandmarksWorker implements Runnable {
     private final DataStorageService dataStorageService;
     private final LandmarkDetectionService landmarkDetectionService;
     private final MapsService mapsService;
-    private final PubsubService pubsubService;
+    private final LandmarksGooglePubsubService pubsubService;
 
     /**
      * Constructor for the worker.
@@ -40,7 +40,7 @@ public class LandmarksWorker implements Runnable {
             DataStorageService dataStorageService,
             LandmarkDetectionService landmarkDetectionService,
             MapsService mapsService,
-            PubsubService pubsubService
+            LandmarksGooglePubsubService pubsubService
     ) {
         this.metadataService = metadataService;
         this.dataStorageService = dataStorageService;
@@ -51,19 +51,19 @@ public class LandmarksWorker implements Runnable {
 
 
     /**
-     * Runs the worker.
+     * Runs the worker, subscribing to the subscription and processing the received messages.
      */
     @Override
     public void run() {
-        pubsubService.subscribe(Main.PROJECT_ID, Main.SUBSCRIPTION_ID, new MessageReceiveHandler(
-                (String requestId, String timestamp, String bucketName, String blobName) -> {
+        pubsubService.subscribe(new MessageReceiveHandler(
+                (String requestId, String photoName, String timestamp, String bucketName, String blobName) -> {
                     LandmarksLogger.logger.info("Received request: " + requestId);
 
                     try {
                         String imageUrl = dataStorageService.getImageLocation(bucketName, blobName);
 
                         // Store the metadata in the Firestore
-                        metadataService.storeRequestMetadata(requestId, timestamp, imageUrl);
+                        metadataService.storeRequestMetadata(requestId, photoName, timestamp, imageUrl);
 
                         // Process the image
                         LandmarksLogger.logger.info("Processing image: " + imageUrl);
@@ -77,6 +77,10 @@ public class LandmarksWorker implements Runnable {
 
                             // Store the map in the Cloud Storage
                             String mapBlobName = dataStorageService.storeLandmarkMap(landmark);
+                            if (mapBlobName == null) {
+                                LandmarksLogger.logger.info("Error storing map for landmark: " + landmark.getName());
+                                return null;
+                            }
 
                             return new LandmarkMetadata(
                                     landmark.getName(),

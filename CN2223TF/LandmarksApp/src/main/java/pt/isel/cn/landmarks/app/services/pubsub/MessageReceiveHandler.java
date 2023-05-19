@@ -18,11 +18,12 @@ public class MessageReceiveHandler implements MessageReceiver {
     @Override
     public void receiveMessage(PubsubMessage message, AckReplyConsumer replyConsumer) {
         String requestId = message.getAttributesOrThrow("requestId");
+        String photoName = message.getAttributesOrThrow("photoName");
         String timestamp = message.getAttributesOrThrow("timestamp");
         String bucketName = message.getAttributesOrThrow("bucket");
         String blobName = message.getAttributesOrThrow("blob");
 
-        processingFunction.processRequest(requestId, timestamp, bucketName, blobName);
+        processingFunction.processRequest(requestId, photoName, timestamp, bucketName, blobName);
 
         replyConsumer.ack();
     }

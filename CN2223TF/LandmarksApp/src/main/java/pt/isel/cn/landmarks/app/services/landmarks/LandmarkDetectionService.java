@@ -14,8 +14,16 @@ public interface LandmarkDetectionService {
     /**
      * Processes the given image and performs landmark detection.
      *
-     * @param imageLocation the location of the image to be processed
+     * @param imageUri the uri of the image to be processed
      * @return a list of possible landmarks found in the image
      */
-    List<Landmark> detectLandmarks(String imageLocation) throws IOException;
+    List<Landmark> detectLandmarks(String imageUri) throws IOException;
+
+    /**
+     * Processes the given image and performs landmark detection.
+     *
+     * @param imageBytes the image to be processed in byte array form
+     * @return a list of possible landmarks found in the image
+     */
+    List<Landmark> detectLandmarks(byte[] imageBytes) throws IOException;
 }

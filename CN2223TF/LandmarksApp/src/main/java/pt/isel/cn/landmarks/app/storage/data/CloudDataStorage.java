@@ -23,6 +23,16 @@ public interface CloudDataStorage {
     void makeBlobPublic(String bucketName, String blobName);
 
     /**
+     * Download a blob from a bucket.
+     *
+     * @param bucketName the name of the bucket
+     * @param blobName   the name of the blob
+     * @return the blob in byte array form
+     * @throws IOException if an I/O error occurs
+     */
+    byte[] downloadBlobFromBucket(String bucketName, String blobName) throws IOException;
+
+    /**
      * Gets the blob location for the provided bucket and blob names.
      *
      * @param bucketName the name of the bucket

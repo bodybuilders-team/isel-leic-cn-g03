@@ -97,13 +97,16 @@ public class LandmarksClient {
     /**
      * Submits an image to the service.
      * <p>
-     * Asks the user for the image path and sends the image data to the service.
+     * Asks the user for the photo name and image path and sends the image data to the service.
      * The image data is sent as a stream of blocks.
      */
     static void submitImage() {
-        System.out.println("########## Submit Image ##########");
-        System.out.print("Enter the image path: ");
         Scanner scan = new Scanner(System.in);
+
+        System.out.println("########## Submit Image ##########");
+        System.out.print("Enter the photo name: ");
+        String photoName = scan.nextLine();
+        System.out.print("Enter the image path: ");
         String filePath = scan.nextLine();
 
         // Create a stream observer to handle the response
@@ -119,6 +122,7 @@ public class LandmarksClient {
             while ((bytesRead = fileInputStream.read(buffer)) != -1) {
                 // Create a new request message with the image block data
                 SubmitImageRequest request = SubmitImageRequest.newBuilder()
+                        .setPhotoName(photoName)
                         .setImageData(ByteString.copyFrom(buffer, 0, bytesRead))
                         .build();
 

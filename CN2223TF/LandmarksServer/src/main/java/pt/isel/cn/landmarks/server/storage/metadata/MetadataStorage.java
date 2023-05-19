@@ -2,6 +2,7 @@ package pt.isel.cn.landmarks.server.storage.metadata;
 
 import pt.isel.cn.landmarks.server.domain.RequestMetadata;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,4 +17,12 @@ public interface MetadataStorage {
      * @return the request
      */
     Optional<RequestMetadata> getRequestMetadata(String requestId);
+
+    /**
+     * Gets a list of request metadata that contain at least a landmark within the confidence threshold.
+     *
+     * @param confidenceThreshold the confidence threshold to use
+     * @return the list of request metadata
+     */
+    List<RequestMetadata> getRequestMetadataByConfidence(float confidenceThreshold);
 }

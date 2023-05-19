@@ -7,9 +7,9 @@ import pt.isel.cn.landmarks.app.services.landmarks.GoogleVisionLandmarkDetection
 import pt.isel.cn.landmarks.app.services.landmarks.LandmarkDetectionService;
 import pt.isel.cn.landmarks.app.services.maps.GoogleMapsStaticService;
 import pt.isel.cn.landmarks.app.services.maps.MapsService;
-import pt.isel.cn.landmarks.app.services.metadatastorage.MetadataService;
+import pt.isel.cn.landmarks.app.services.metadata.MetadataService;
 import pt.isel.cn.landmarks.app.services.pubsub.GooglePubsubService;
-import pt.isel.cn.landmarks.app.services.pubsub.PubsubService;
+import pt.isel.cn.landmarks.app.services.pubsub.LandmarksGooglePubsubService;
 import pt.isel.cn.landmarks.app.storage.data.CloudDataStorage;
 import pt.isel.cn.landmarks.app.storage.data.GoogleCloudDataStorage;
 import pt.isel.cn.landmarks.app.storage.metadata.FirestoreMetadataStorage;
@@ -19,9 +19,6 @@ import pt.isel.cn.landmarks.app.storage.metadata.MetadataStorage;
  * Main class for the LandmarksApp.
  */
 public class Main {
-
-    public static final String PROJECT_ID = "cn2223-t1-g03";
-    public static final String SUBSCRIPTION_ID = "landmarks-sub";
 
     /**
      * Entry point of the Landmarks application.
@@ -39,7 +36,8 @@ public class Main {
         DataStorageService dataStorageService = new DataStorageService(cloudDataStorage);
         LandmarkDetectionService landmarkDetectionService = new GoogleVisionLandmarkDetectionService();
         MapsService mapsService = new GoogleMapsStaticService();
-        PubsubService pubsubService = new GooglePubsubService();
+        GooglePubsubService googlePubsubService = new GooglePubsubService();
+        LandmarksGooglePubsubService pubsubService = new LandmarksGooglePubsubService(googlePubsubService);
 
         LandmarksLogger.logger.info("LandmarksApp worker starting...");
         LandmarksWorker worker = new LandmarksWorker(

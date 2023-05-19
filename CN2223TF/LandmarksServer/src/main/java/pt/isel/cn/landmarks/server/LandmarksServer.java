@@ -2,7 +2,9 @@ package pt.isel.cn.landmarks.server;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
+import landmarks.GetIdentifiedPhotosResponse;
 import landmarks.GetResultsResponse;
+import landmarks.IdentifiedPhoto;
 import landmarks.ImageMap;
 import landmarks.LandmarksServiceGrpc;
 import landmarks.SubmitImageRequest;
@@ -15,11 +17,14 @@ import pt.isel.cn.landmarks.server.storage.metadata.MetadataStorage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static java.util.Arrays.stream;
 
 /**
  * Server for the Landmarks GRPC service following {@link LandmarksServiceGrpc} contract.
@@ -61,12 +66,21 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
 
         List<LandmarkMetadata> landmarkMetadataList = List.of(requestMetadata.getLandmarks());
 
-        byte[] mapImage = mapService.getMapImage(landmarkMetadataList.get(0).getMapBlobName());
+        LandmarkMetadata biggestConfidenceLandmark = landmarkMetadataList.stream()
+                .max(Comparator.comparingDouble(LandmarkMetadata::getConfidence))
+                .orElse(null);
+
+        if (biggestConfidenceLandmark == null) {
+            responseObserver.onError(new RuntimeException(String.format("No landmarks found for request with id %s", requestId)));
+            return;
+        }
+
+        byte[] mapImage = mapService.getMapImage(biggestConfidenceLandmark.getMapBlobName());
         if (mapImage == null) { // TODO if one fails retrieve another?
-            LandmarksServerLogger.logger.severe("Error retrieving map from landmark with name" + landmarkMetadataList.get(0).getMapBlobName());
+            LandmarksServerLogger.logger.severe("Error retrieving map from landmark with name" + biggestConfidenceLandmark.getMapBlobName());
 
             responseObserver.onError(new RuntimeException(
-                    String.format("Error retrieving map from landmark with name %s", landmarkMetadataList.get(0).getMapBlobName()))
+                    String.format("Error retrieving map from landmark with name %s", biggestConfidenceLandmark.getMapBlobName()))
             );
             return;
         }
@@ -93,11 +107,15 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
                                     io.grpc.stub.StreamObserver<landmarks.GetIdentifiedPhotosResponse> responseObserver) {
         float confidenceThreshold = request.getConfidenceThreshold();
 
-        /*List<IdentifiedPhoto> identifiedPhotos = metadataStorage.getRequestsMetadataByConfidence(confidenceThreshold)
-                .stream().map(request ->
+        List<IdentifiedPhoto> identifiedPhotos = metadataStorage.getRequestMetadataByConfidence(confidenceThreshold)
+                .stream().map(requestMetadata ->
                         IdentifiedPhoto.newBuilder()
-                                .setLandmarkName(request.getLandmarks())
-                                .setPhotoName(request.)
+                                .setPhotoName(requestMetadata.getPhotoName())
+                                .setLandmarkName(stream(requestMetadata.getLandmarks()).filter(landmarkMetadata ->
+                                                landmarkMetadata.getConfidence() >= confidenceThreshold)
+                                        .max(Comparator.comparingDouble(LandmarkMetadata::getConfidence))
+                                        .orElseThrow(() -> new IllegalStateException("No landmark in this request has confidence bigger than confidence threshold. Query not working as expected."))
+                                        .getName())
                                 .build()
                 ).collect(Collectors.toList());
 
@@ -106,11 +124,12 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
                         .addAllIdentifiedPhotos(identifiedPhotos)
                         .build()
         );
-        responseObserver.onCompleted();*/
+        responseObserver.onCompleted();
     }
 
     private class ImageRequestStreamObserver implements StreamObserver<SubmitImageRequest> {
 
+        String photoName;
         ByteArrayOutputStream imageBytes;
         StreamObserver<SubmitImageResponse> responseObserver;
 
@@ -123,6 +142,7 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
         public void onNext(SubmitImageRequest submitImageRequest) {
             try {
                 imageBytes.write(submitImageRequest.getImageData().toByteArray());
+                photoName = submitImageRequest.getPhotoName();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -145,7 +165,7 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
             try {
                 String blobName = imageService.uploadImage(imageBytes.toByteArray());
 
-                imageService.notifyImageUploaded(requestId, blobName);
+                imageService.notifyImageUploaded(requestId, photoName, blobName);
             } catch (IOException | ExecutionException | InterruptedException e) {
                 System.out.printf("Error during image upload of request with id %s", requestId);
             }

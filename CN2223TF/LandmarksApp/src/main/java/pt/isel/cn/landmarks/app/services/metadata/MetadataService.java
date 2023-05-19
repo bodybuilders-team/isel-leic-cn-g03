@@ -1,4 +1,4 @@
-package pt.isel.cn.landmarks.app.services.metadatastorage;
+package pt.isel.cn.landmarks.app.services.metadata;
 
 import com.google.cloud.Timestamp;
 import pt.isel.cn.landmarks.app.domain.LandmarkMetadata;
@@ -22,12 +22,14 @@ public class MetadataService {
      * Stores the metadata of a request.
      *
      * @param requestId the id of the request
+     * @param photoName the name of the photo
      * @param timestamp the timestamp of the request
      * @param imageUrl  the url of the image
      */
-    public void storeRequestMetadata(String requestId, String timestamp, String imageUrl) {
+    public void storeRequestMetadata(String requestId, String photoName, String timestamp, String imageUrl) {
         RequestMetadata requestMetadata = new RequestMetadata(
                 requestId,
+                photoName,
                 Timestamp.parseTimestamp(timestamp),
                 imageUrl,
                 "PENDING",

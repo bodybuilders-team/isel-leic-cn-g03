@@ -9,6 +9,7 @@ import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageSource;
 import com.google.cloud.vision.v1.LocationInfo;
+import com.google.protobuf.ByteString;
 import pt.isel.cn.landmarks.app.LandmarksLogger;
 import pt.isel.cn.landmarks.app.domain.Landmark;
 import pt.isel.cn.landmarks.app.domain.Location;
@@ -27,13 +28,41 @@ import java.util.List;
  */
 public class GoogleVisionLandmarkDetectionService implements LandmarkDetectionService {
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * {@link ImageSource.Builder#setImageUri} is used instead of {@link ImageSource.Builder#setGcsImageUri}
+     * because the latter only supports Google Cloud Storage URIs.
+     */
     @Override
-    public List<Landmark> detectLandmarks(String imageLocation) throws IOException {
+    public List<Landmark> detectLandmarks(String imageUri) throws IOException {
+        return detectLandmarks(ImageSource.newBuilder().setImageUri(imageUri).build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * {@link ImageSource.Builder#setImageUriBytes} is used instead of {@link ImageSource.Builder#setGcsImageUriBytes}
+     * because the latter only supports Google Cloud Storage URIs.
+     */
+    @Override
+    public List<Landmark> detectLandmarks(byte[] imageBytes) throws IOException {
+        return detectLandmarks(ImageSource.newBuilder().setImageUriBytes(ByteString.copyFrom(imageBytes)).build());
+    }
+
+    /**
+     * Detects landmarks in the image specified by the given {@link ImageSource}, that can be initialized with an image
+     * URI or with a byte array.
+     *
+     * @param imageSource the image to be processed
+     * @return a list of possible landmarks found in the image
+     * @throws IOException if an I/O error occurs
+     */
+    private List<Landmark> detectLandmarks(ImageSource imageSource) throws IOException {
         List<Landmark> landmarks = new ArrayList<>();
         List<AnnotateImageRequest> requests = new ArrayList<>();
 
-        ImageSource imgSource = ImageSource.newBuilder().setGcsImageUri(imageLocation).build();
-        Image img = Image.newBuilder().setSource(imgSource).build();
+        Image img = Image.newBuilder().setSource(imageSource).build();
         Feature feat = Feature.newBuilder().setType(Feature.Type.LANDMARK_DETECTION).build();
         AnnotateImageRequest request = AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
         requests.add(request);

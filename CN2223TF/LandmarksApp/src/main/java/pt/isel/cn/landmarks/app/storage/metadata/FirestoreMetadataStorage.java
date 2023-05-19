@@ -6,12 +6,13 @@ import pt.isel.cn.landmarks.app.domain.RequestMetadata;
 
 import java.util.List;
 
+import static pt.isel.cn.landmarks.app.Config.FIRESTORE_COLLECTION_NAME;
+
 /**
  * Implementation of the {@link MetadataStorage} interface that uses Firestore.
  */
 public class FirestoreMetadataStorage implements MetadataStorage {
 
-    private static final String COLLECTION_NAME = "landmarks"; // TODO: review names of collections/topics/buckets, etc
     private final Firestore service;
 
     public FirestoreMetadataStorage(Firestore service) {
@@ -20,14 +21,14 @@ public class FirestoreMetadataStorage implements MetadataStorage {
 
     @Override
     public void storeRequestMetadata(RequestMetadata requestMetadata) {
-        service.collection(COLLECTION_NAME)
+        service.collection(FIRESTORE_COLLECTION_NAME)
                 .document(requestMetadata.getRequestId())
                 .set(requestMetadata);
     }
 
     @Override
     public void updateLandmarksAndStatus(String requestId, List<LandmarkMetadata> landmarks, String status) {
-        service.collection(COLLECTION_NAME)
+        service.collection(FIRESTORE_COLLECTION_NAME)
                 .document(requestId)
                 .update("landmarks", landmarks,
                         "status", status

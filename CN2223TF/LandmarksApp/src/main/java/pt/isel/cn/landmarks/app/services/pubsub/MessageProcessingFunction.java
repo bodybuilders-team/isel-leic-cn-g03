@@ -5,5 +5,5 @@ package pt.isel.cn.landmarks.app.services.pubsub;
  */
 @FunctionalInterface
 public interface MessageProcessingFunction {
-    void processRequest(String requestId, String timestamp, String bucketName, String blobName);
+    void processRequest(String requestId, String photoName, String timestamp, String bucketName, String blobName);
 }

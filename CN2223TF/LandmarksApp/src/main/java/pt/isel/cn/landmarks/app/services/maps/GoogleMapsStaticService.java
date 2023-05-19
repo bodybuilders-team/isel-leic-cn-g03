@@ -11,6 +11,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import static pt.isel.cn.landmarks.app.Config.GOOGLE_MAPS_API_KEY;
+
 /**
  * Implements the {@link MapsService} interface using the Google Maps Static API.
  *
@@ -18,7 +20,6 @@ import java.net.http.HttpResponse;
  */
 public class GoogleMapsStaticService implements MapsService {
 
-    private static final String API_KEY = System.getenv("GOOGLE_MAPS_API_KEY");
     private static final String API_URL = "https://maps.googleapis.com/maps/api/staticmap?";
 
     private static final String DEFAULT_ZOOM = "15";
@@ -33,7 +34,7 @@ public class GoogleMapsStaticService implements MapsService {
                             + "center=" + location.getLatitude() + "," + location.getLongitude()
                             + "&zoom=" + DEFAULT_ZOOM
                             + "&size=" + DEFAULT_SIZE
-                            + "&key=" + API_KEY)
+                            + "&key=" + GOOGLE_MAPS_API_KEY)
                     )
                     .GET()
                     .build();

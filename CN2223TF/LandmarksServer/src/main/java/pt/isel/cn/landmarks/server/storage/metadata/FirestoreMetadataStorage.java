@@ -7,14 +7,18 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import pt.isel.cn.landmarks.server.domain.RequestMetadata;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static pt.isel.cn.landmarks.server.Config.FIRESTORE_COLLECTION_NAME;
 
 /**
  * Implementation of the {@link MetadataStorage} interface that uses Firestore.
  */
 public class FirestoreMetadataStorage implements MetadataStorage {
 
-    private static final String COLLECTION_NAME = "landmarks"; // TODO: review names of collections/topics/buckets, etc
     private final Firestore service;
 
     public FirestoreMetadataStorage(Firestore service) {
@@ -25,7 +29,7 @@ public class FirestoreMetadataStorage implements MetadataStorage {
     @Override
     public Optional<RequestMetadata> getRequestMetadata(String requestId) {
         try {
-            CollectionReference colRef = service.collection(COLLECTION_NAME);
+            CollectionReference colRef = service.collection(FIRESTORE_COLLECTION_NAME);
             ApiFuture<QuerySnapshot> query = colRef.whereEqualTo("requestId", requestId).get();
 
             Optional<QueryDocumentSnapshot> documentSnapshot = query.get().getDocuments().stream().findFirst();
@@ -37,18 +41,19 @@ public class FirestoreMetadataStorage implements MetadataStorage {
         }
     }
 
-//    @Override
-//    public List<Request> getRequestsMetadataByConfidence(float confidenceThreshold) {
-//        try {
-//            CollectionReference colRef = service.collection(COLLECTION_NAME);
-//            ApiFuture<QuerySnapshot> query = colRef.whereGreaterThanOrEqualTo("confidence", confidenceThreshold).get();
-//
-//            return query.get().getDocuments().stream()
-//                    .map(doc -> doc.toObject(Request.class))
-//                    .collect(Collectors.toList());
-//        } catch (Exception e) {
-//            System.out.println("Error getting documents: " + e.getMessage());
-//            return Collections.emptyList();
-//        }
-//    }
+    @Override
+    public List<RequestMetadata> getRequestMetadataByConfidence(float confidenceThreshold) {
+        try {
+            CollectionReference colRef = service.collection(FIRESTORE_COLLECTION_NAME);
+            ApiFuture<QuerySnapshot> query = colRef.whereGreaterThanOrEqualTo(
+                    "landmarks.confidence", confidenceThreshold).get();
+
+            return query.get().getDocuments().stream()
+                    .map(queryDocumentSnapshot -> queryDocumentSnapshot.toObject(RequestMetadata.class))
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
 }

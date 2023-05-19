@@ -9,6 +9,7 @@ import com.google.cloud.Timestamp;
  */
 public class RequestMetadata {
     private final String requestId;
+    private final String photoName;
     private final Timestamp timestamp;
     private final String imageUrl;
     private final String status;
@@ -17,14 +18,16 @@ public class RequestMetadata {
     /**
      * Constructor for a landmark detection request.
      *
-     * @param requestId The id of the request.
-     * @param timestamp The timestamp of the request.
-     * @param imageUrl  The url of the image.
-     * @param status    The status of the request.
-     * @param landmarks The landmarks detected in the image, after the request is processed.
+     * @param requestId the id of the request
+     * @param photoName the name of the photo
+     * @param timestamp the timestamp of the request
+     * @param imageUrl  the url of the image
+     * @param status    the status of the request
+     * @param landmarks the landmarks detected in the image, after the request is processed
      */
-    public RequestMetadata(String requestId, Timestamp timestamp, String imageUrl, String status, LandmarkMetadata[] landmarks) {
+    public RequestMetadata(String requestId, String photoName, Timestamp timestamp, String imageUrl, String status, LandmarkMetadata[] landmarks) {
         this.requestId = requestId;
+        this.photoName = photoName;
         this.timestamp = timestamp;
         this.imageUrl = imageUrl;
         this.status = status;
@@ -33,6 +36,10 @@ public class RequestMetadata {
 
     public String getRequestId() {
         return requestId;
+    }
+
+    public String getPhotoName() {
+        return photoName;
     }
 
     public Timestamp getTimestamp() {
