@@ -1,63 +1,38 @@
 package pt.isel.cn.landmarks.server;
 
-import com.google.cloud.firestore.FirestoreOptions;
-import com.google.cloud.storage.StorageOptions;
 import com.google.protobuf.ByteString;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import landmarks.GetResultsResponse;
 import landmarks.ImageMap;
 import landmarks.LandmarksServiceGrpc;
 import landmarks.SubmitImageRequest;
 import landmarks.SubmitImageResponse;
-import pt.isel.cn.landmarks.server.domain.Landmark;
-import pt.isel.cn.landmarks.server.domain.Request;
-import pt.isel.cn.landmarks.server.service.ImageService;
-import pt.isel.cn.landmarks.server.service.ImageServiceImpl;
-import pt.isel.cn.landmarks.server.storage.data.CloudDataStorage;
-import pt.isel.cn.landmarks.server.storage.data.GoogleCloudCloudDataStorage;
-import pt.isel.cn.landmarks.server.storage.metadata.FirestoreMetadataStorage;
+import pt.isel.cn.landmarks.server.domain.LandmarkMetadata;
+import pt.isel.cn.landmarks.server.domain.RequestMetadata;
+import pt.isel.cn.landmarks.server.service.images.ImageService;
+import pt.isel.cn.landmarks.server.service.maps.MapService;
 import pt.isel.cn.landmarks.server.storage.metadata.MetadataStorage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+/**
+ * Server for the Landmarks GRPC service following {@link LandmarksServiceGrpc} contract.
+ */
 public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBase {
-    private static final int svcPort = 8000;
-
     private final ImageService imageService;
+    private final MapService mapService;
     private final MetadataStorage metadataStorage;
 
-    public LandmarksServer(ImageService imageService, MetadataStorage metadataStorage) {
+    public LandmarksServer(ImageService imageService, MapService mapService, MetadataStorage metadataStorage) {
         this.imageService = imageService;
+        this.mapService = mapService;
         this.metadataStorage = metadataStorage;
-    }
-
-    public static void main(String[] args) {
-        CloudDataStorage cloudDataStorage = new GoogleCloudCloudDataStorage(StorageOptions.getDefaultInstance().getService());
-        MetadataStorage metadataStorage = new FirestoreMetadataStorage(FirestoreOptions.getDefaultInstance().getService());
-        ImageService imageService = new ImageServiceImpl(cloudDataStorage);
-
-        try {
-            Server svc = ServerBuilder.forPort(svcPort)
-                    .addService(new LandmarksServer(imageService, metadataStorage))
-                    .build()
-                    .start();
-            System.out.println("LandmarksServer started on port " + svcPort);
-
-            Scanner scanner = new Scanner(System.in);
-            scanner.nextLine();
-            svc.shutdown();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -71,31 +46,41 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
                            io.grpc.stub.StreamObserver<landmarks.GetResultsResponse> responseObserver) {
         String requestId = request.getRequestId();
 
-        Optional<Request> requestOptional = metadataStorage.getRequestMetadata(requestId);
+        Optional<RequestMetadata> requestOptional = metadataStorage.getRequestMetadata(requestId);
 
         if (requestOptional.isEmpty()) {
             responseObserver.onError(new RuntimeException(String.format("Request with id %s not found", requestId)));
             return;
         }
 
-        Request requestMetadata = requestOptional.get();
+        RequestMetadata requestMetadata = requestOptional.get();
         if (!requestMetadata.getStatus().equals("DONE")) {
             responseObserver.onError(new RuntimeException(String.format("Request with id %s didn't finish processing", requestId)));
             return;
         }
 
-        List<Landmark> landmarkList = List.of(requestMetadata.getLandmarks());
+        List<LandmarkMetadata> landmarkMetadataList = List.of(requestMetadata.getLandmarks());
+
+        byte[] mapImage = mapService.getMapImage(landmarkMetadataList.get(0).getMapBlobName());
+        if (mapImage == null) { // TODO if one fails retrieve another?
+            LandmarksServerLogger.logger.severe("Error retrieving map from landmark with name" + landmarkMetadataList.get(0).getMapBlobName());
+
+            responseObserver.onError(new RuntimeException(
+                    String.format("Error retrieving map from landmark with name %s", landmarkMetadataList.get(0).getMapBlobName()))
+            );
+            return;
+        }
 
         responseObserver.onNext(GetResultsResponse.newBuilder()
                 .setMap(ImageMap.newBuilder()
-                        .setImageData(ByteString.copyFrom(landmarkList.get(0).getMap()))
+                        .setImageData(ByteString.copyFrom(mapImage))
                         .build())
-                .addAllLandmarks(landmarkList.stream().map(landmark ->
+                .addAllLandmarks(landmarkMetadataList.stream().map(landmarkMetadata ->
                         landmarks.Landmark.newBuilder()
-                                .setConfidence(landmark.getConfidence())
-                                .setLatitude(landmark.getLocation().getLatitude())
-                                .setLongitude(landmark.getLocation().getLongitude())
-                                .setName(landmark.getName())
+                                .setConfidence(landmarkMetadata.getConfidence())
+                                .setLatitude(landmarkMetadata.getLocation().getLatitude())
+                                .setLongitude(landmarkMetadata.getLocation().getLongitude())
+                                .setName(landmarkMetadata.getName())
                                 .build()
                 ).collect(Collectors.toList()))
                 .build()

@@ -1,6 +1,7 @@
 package pt.isel.cn.landmarks.app.storage.metadata;
 
-import pt.isel.cn.landmarks.app.domain.Landmark;
+import pt.isel.cn.landmarks.app.domain.LandmarkMetadata;
+import pt.isel.cn.landmarks.app.domain.RequestMetadata;
 
 import java.util.List;
 
@@ -12,16 +13,15 @@ public interface MetadataStorage {
     /**
      * Stores the metadata of a request.
      *
-     * @param requestId the id of the request
-     * @param imageUrl  the url of the image to be processed
+     * @param requestMetadata the request to be stored
      */
-    void storeRequestMetadata(String requestId, String timestamp, String imageUrl);
+    void storeRequestMetadata(RequestMetadata requestMetadata);
 
     /**
      * Stores the metadata of the landmarks.
      *
-     * @param requestId The id of the request that generated the landmark.
-     * @param landmarks The landmarks to be stored.
+     * @param requestId the id of the request that generated the landmark
+     * @param landmarks the landmarks to be stored
      */
-    void storeLandmarksMetadata(String requestId, List<Landmark> landmarks);
+    void storeLandmarksMetadata(String requestId, List<LandmarkMetadata> landmarks);
 }

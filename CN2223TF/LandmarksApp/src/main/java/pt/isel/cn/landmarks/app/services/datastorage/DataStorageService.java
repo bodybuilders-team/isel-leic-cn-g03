@@ -2,6 +2,9 @@ package pt.isel.cn.landmarks.app.services.datastorage;
 
 import pt.isel.cn.landmarks.app.domain.Landmark;
 
+/**
+ * The interface for the data storage service that handles image and map data.
+ */
 public interface DataStorageService {
 
     /**
@@ -16,7 +19,8 @@ public interface DataStorageService {
     /**
      * Stores the landmark map.
      *
-     * @param landmark The landmark whose map to store.
+     * @param landmark the landmark whose map to store
+     * @return the map blob name
      */
-    void storeLandmarkMap(Landmark landmark);
+    String storeLandmarkMap(Landmark landmark);
 }

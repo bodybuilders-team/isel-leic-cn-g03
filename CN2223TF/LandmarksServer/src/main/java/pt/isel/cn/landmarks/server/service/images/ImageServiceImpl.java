@@ -1,4 +1,4 @@
-package pt.isel.cn.landmarks.server.service;
+package pt.isel.cn.landmarks.server.service.images;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.pubsub.v1.Publisher;
@@ -16,6 +16,7 @@ public class ImageServiceImpl implements ImageService {
     private static final String PROJECT_ID = "cn2223-t1-g03";
     private static final String TOPIC_ID = "landmarks";
     private static final String IMAGES_BUCKET_NAME = "landmarks-images";
+
     CloudDataStorage cloudDataStorage;
 
     public ImageServiceImpl(CloudDataStorage cloudDataStorage) {

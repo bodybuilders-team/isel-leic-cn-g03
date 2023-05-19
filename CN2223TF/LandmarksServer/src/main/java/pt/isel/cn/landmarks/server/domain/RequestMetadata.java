@@ -3,16 +3,16 @@ package pt.isel.cn.landmarks.server.domain;
 import com.google.cloud.Timestamp;
 
 /**
- * A landmark detection request.
+ * Metadata for a landmark detection request.
  * <p>
  * Contains request information and the landmarks detected in the image.
  */
-public class Request {
+public class RequestMetadata {
     private final String requestId;
     private final Timestamp timestamp;
     private final String imageUrl;
     private final String status;
-    private final Landmark[] landmarks;
+    private final LandmarkMetadata[] landmarks;
 
     /**
      * Constructor for a landmark detection request.
@@ -23,7 +23,7 @@ public class Request {
      * @param status    The status of the request.
      * @param landmarks The landmarks detected in the image, after the request is processed.
      */
-    public Request(String requestId, Timestamp timestamp, String imageUrl, String status, Landmark[] landmarks) {
+    public RequestMetadata(String requestId, Timestamp timestamp, String imageUrl, String status, LandmarkMetadata[] landmarks) {
         this.requestId = requestId;
         this.timestamp = timestamp;
         this.imageUrl = imageUrl;
@@ -47,7 +47,7 @@ public class Request {
         return status;
     }
 
-    public Landmark[] getLandmarks() {
+    public LandmarkMetadata[] getLandmarks() {
         return landmarks;
     }
 }

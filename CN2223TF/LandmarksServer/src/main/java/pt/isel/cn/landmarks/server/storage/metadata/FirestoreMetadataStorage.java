@@ -5,7 +5,7 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
-import pt.isel.cn.landmarks.server.domain.Request;
+import pt.isel.cn.landmarks.server.domain.RequestMetadata;
 
 import java.util.Optional;
 
@@ -23,17 +23,16 @@ public class FirestoreMetadataStorage implements MetadataStorage {
 
 
     @Override
-    public Optional<Request> getRequestMetadata(String requestId) {
+    public Optional<RequestMetadata> getRequestMetadata(String requestId) {
         try {
             CollectionReference colRef = service.collection(COLLECTION_NAME);
             ApiFuture<QuerySnapshot> query = colRef.whereEqualTo("requestId", requestId).get();
 
             Optional<QueryDocumentSnapshot> documentSnapshot = query.get().getDocuments().stream().findFirst();
 
-            return documentSnapshot.map(queryDocumentSnapshot -> queryDocumentSnapshot.toObject(Request.class));
+            return documentSnapshot.map(queryDocumentSnapshot -> queryDocumentSnapshot.toObject(RequestMetadata.class));
 
         } catch (Exception e) {
-            System.out.println("Error getting documents: " + e.getMessage());
             return Optional.empty();
         }
     }

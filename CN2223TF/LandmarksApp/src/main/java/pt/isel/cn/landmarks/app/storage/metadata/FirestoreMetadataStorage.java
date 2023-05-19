@@ -1,9 +1,8 @@
 package pt.isel.cn.landmarks.app.storage.metadata;
 
-import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.Firestore;
-import pt.isel.cn.landmarks.app.domain.Landmark;
-import pt.isel.cn.landmarks.app.domain.Request;
+import pt.isel.cn.landmarks.app.domain.LandmarkMetadata;
+import pt.isel.cn.landmarks.app.domain.RequestMetadata;
 
 import java.util.List;
 
@@ -20,22 +19,14 @@ public class FirestoreMetadataStorage implements MetadataStorage {
     }
 
     @Override
-    public void storeRequestMetadata(String requestId, String timestamp, String imageUrl) {
-        Request request = new Request(
-                requestId,
-                Timestamp.parseTimestamp(timestamp),
-                imageUrl,
-                "PENDING",
-                null
-        );
-
+    public void storeRequestMetadata(RequestMetadata requestMetadata) {
         service.collection(COLLECTION_NAME)
-                .document(requestId)
-                .set(request);
+                .document(requestMetadata.getRequestId())
+                .set(requestMetadata);
     }
 
     @Override
-    public void storeLandmarksMetadata(String requestId, List<Landmark> landmarks) {
+    public void storeLandmarksMetadata(String requestId, List<LandmarkMetadata> landmarks) {
         service.collection(COLLECTION_NAME)
                 .document(requestId)
                 .update("landmarks", landmarks,

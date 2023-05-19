@@ -21,7 +21,7 @@ public class DataStorageServiceImpl implements DataStorageService {
     }
 
     @Override
-    public void storeLandmarkMap(Landmark landmark) {
+    public String storeLandmarkMap(Landmark landmark) {
         try {
             cloudDataStorage.uploadBlobToBucket(MAPS_BUCKET_NAME, landmark.getName(), landmark.getMap(), "image/png");
         } catch (IOException e) {
@@ -29,5 +29,7 @@ public class DataStorageServiceImpl implements DataStorageService {
         }
 
         cloudDataStorage.makeBlobPublic(MAPS_BUCKET_NAME, landmark.getName());
+
+        return landmark.getName();
     }
 }

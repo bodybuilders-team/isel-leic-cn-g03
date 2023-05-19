@@ -1,4 +1,4 @@
-package pt.isel.cn.landmarks.server.service;
+package pt.isel.cn.landmarks.server.service.images;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;

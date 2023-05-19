@@ -8,10 +8,11 @@ import pt.isel.cn.landmarks.app.services.landmarks.LandmarksService;
 import pt.isel.cn.landmarks.app.services.landmarks.LandmarksVisionService;
 import pt.isel.cn.landmarks.app.services.maps.MapsService;
 import pt.isel.cn.landmarks.app.services.maps.MapsStaticService;
+import pt.isel.cn.landmarks.app.services.metadatastorage.MetadataService;
 import pt.isel.cn.landmarks.app.services.pubsub.GooglePubsubService;
 import pt.isel.cn.landmarks.app.services.pubsub.PubsubService;
 import pt.isel.cn.landmarks.app.storage.data.CloudDataStorage;
-import pt.isel.cn.landmarks.app.storage.data.GoogleCloudCloudDataStorage;
+import pt.isel.cn.landmarks.app.storage.data.GoogleCloudDataStorage;
 import pt.isel.cn.landmarks.app.storage.metadata.FirestoreMetadataStorage;
 import pt.isel.cn.landmarks.app.storage.metadata.MetadataStorage;
 
@@ -25,13 +26,17 @@ public class Main {
 
     /**
      * Entry point of the Landmarks application.
+     * <p>
+     * Starts the app through a {@link LandmarksWorker}.
+     * <p>
+     * Is also responsible for creating the object instances used for dependency injection.
      *
      * @param args The command line arguments.
      */
     public static void main(String[] args) {
-        // Initialize dependencies
-        CloudDataStorage cloudDataStorage = new GoogleCloudCloudDataStorage(StorageOptions.getDefaultInstance().getService());
+        CloudDataStorage cloudDataStorage = new GoogleCloudDataStorage(StorageOptions.getDefaultInstance().getService());
         MetadataStorage metadataStorage = new FirestoreMetadataStorage(FirestoreOptions.getDefaultInstance().getService());
+        MetadataService metadataService = new MetadataService(metadataStorage);
         DataStorageService dataStorageService = new DataStorageServiceImpl(cloudDataStorage);
         LandmarksService landmarksService = new LandmarksVisionService();
         MapsService mapsService = new MapsStaticService();
@@ -39,7 +44,7 @@ public class Main {
 
         LandmarksLogger.logger.info("LandmarksApp worker starting...");
         LandmarksWorker worker = new LandmarksWorker(
-                metadataStorage,
+                metadataService,
                 dataStorageService,
                 landmarksService,
                 mapsService,

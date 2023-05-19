@@ -26,7 +26,6 @@ public class Landmark {
         this.confidence = confidence;
     }
 
-
     public String getName() {
         return name;
     }
