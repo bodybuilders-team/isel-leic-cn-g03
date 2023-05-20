@@ -8,10 +8,10 @@ package pt.isel.cn.landmarks.server.domain;
  * detection of the landmark, and may contain the detected landmark map blob name.
  */
 public class LandmarkMetadata {
-    private final String name;
-    private final Location location;
-    private final float confidence;
-    private final String mapBlobName;
+    private String name;
+    private Location location;
+    private float confidence;
+    private String mapBlobName;
 
     /**
      * Constructor for a landmark metadata.
@@ -26,6 +26,9 @@ public class LandmarkMetadata {
         this.location = location;
         this.confidence = confidence;
         this.mapBlobName = mapBlobName;
+    }
+
+    public LandmarkMetadata() {
     }
 
     public String getName() {

@@ -2,18 +2,20 @@ package pt.isel.cn.landmarks.server.domain;
 
 import com.google.cloud.Timestamp;
 
+import java.util.List;
+
 /**
  * Metadata for a landmark detection request.
  * <p>
  * Contains request information and the landmarks detected in the image.
  */
 public class RequestMetadata {
-    private final String requestId;
-    private final String photoName;
-    private final Timestamp timestamp;
-    private final String imageUrl;
-    private final String status;
-    private final LandmarkMetadata[] landmarks;
+    private String requestId;
+    private String photoName;
+    private Timestamp timestamp;
+    private String imageUrl;
+    private String status;
+    private List<LandmarkMetadata> landmarks;
 
     /**
      * Constructor for a landmark detection request.
@@ -25,13 +27,16 @@ public class RequestMetadata {
      * @param status    the status of the request
      * @param landmarks the landmarks detected in the image, after the request is processed
      */
-    public RequestMetadata(String requestId, String photoName, Timestamp timestamp, String imageUrl, String status, LandmarkMetadata[] landmarks) {
+    public RequestMetadata(String requestId, String photoName, Timestamp timestamp, String imageUrl, String status, List<LandmarkMetadata> landmarks) {
         this.requestId = requestId;
         this.photoName = photoName;
         this.timestamp = timestamp;
         this.imageUrl = imageUrl;
         this.status = status;
         this.landmarks = landmarks;
+    }
+
+    public RequestMetadata() {
     }
 
     public String getRequestId() {
@@ -54,7 +59,7 @@ public class RequestMetadata {
         return status;
     }
 
-    public LandmarkMetadata[] getLandmarks() {
+    public List<LandmarkMetadata> getLandmarks() {
         return landmarks;
     }
 }

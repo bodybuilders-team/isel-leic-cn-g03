@@ -5,13 +5,13 @@ import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.pubsub.v1.PubsubMessage;
 
 /**
- * Receives Pub/Sub messages and processes them using the processing function.
+ * Receives Landmarks Pub/Sub messages and processes them using the processing function.
  */
-public class MessageReceiveHandler implements MessageReceiver {
+public class LandmarksMessageReceiveHandler implements MessageReceiver {
 
-    private final MessageProcessingFunction processingFunction;
+    private final LandmarksMessageProcessingFunction processingFunction;
 
-    public MessageReceiveHandler(MessageProcessingFunction processingFunction) {
+    public LandmarksMessageReceiveHandler(LandmarksMessageProcessingFunction processingFunction) {
         this.processingFunction = processingFunction;
     }
 

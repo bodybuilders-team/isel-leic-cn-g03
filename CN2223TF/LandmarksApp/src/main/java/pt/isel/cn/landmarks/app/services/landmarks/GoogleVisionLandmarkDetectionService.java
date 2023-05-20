@@ -22,7 +22,7 @@ import java.util.List;
  * Implements the {@link LandmarkDetectionService} using the Google Vision API.
  * <p>
  * Google Vision API is a service that allows to detect a variety of different things in images. In this case,
- * it is used to detect landmarks in images.
+ * it is only used to detect landmarks in images.
  *
  * @see <a href="https://cloud.google.com/vision">Google Vision API</a>
  */

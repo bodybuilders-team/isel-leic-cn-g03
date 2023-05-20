@@ -32,14 +32,10 @@ public class ImageService {
      * @param imageBytes the image in byte array form
      * @return the location of the uploaded image
      */
-    public String uploadImage(byte[] imageBytes) {
+    public String uploadImage(byte[] imageBytes) throws IOException {
         String blobName = UUID.randomUUID().toString();
 
-        try {
-            cloudDataStorage.uploadBlobToBucket(IMAGES_BUCKET_NAME, blobName, imageBytes, "image/png");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        cloudDataStorage.uploadBlobToBucket(IMAGES_BUCKET_NAME, blobName, imageBytes, null);
 
         cloudDataStorage.makeBlobPublic(IMAGES_BUCKET_NAME, blobName);
 

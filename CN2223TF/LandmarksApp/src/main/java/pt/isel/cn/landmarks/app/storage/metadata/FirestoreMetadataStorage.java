@@ -10,6 +10,8 @@ import static pt.isel.cn.landmarks.app.Config.FIRESTORE_COLLECTION_NAME;
 
 /**
  * Implementation of the {@link MetadataStorage} interface that uses Firestore.
+ *
+ * @see <a href="https://cloud.google.com/firestore">Firestore</a>
  */
 public class FirestoreMetadataStorage implements MetadataStorage {
 

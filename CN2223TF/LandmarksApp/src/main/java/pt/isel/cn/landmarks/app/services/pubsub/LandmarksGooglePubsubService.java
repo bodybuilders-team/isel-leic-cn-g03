@@ -15,11 +15,11 @@ public class LandmarksGooglePubsubService {
     }
 
     /**
-     * Subscribes to the Landmarks Pub/Sub topic and processes the received messages using the provided handler.
+     * Subscribes to the Landmarks Pub/Sub topic and processes the received messages using the provided processing function.
      *
-     * @param handler the handler to process the received messages
+     * @param processingFunction the processing function to process the received messages
      */
-    public void subscribe(MessageReceiveHandler handler) {
-        googlePubsubService.subscribe(PROJECT_ID, SUBSCRIPTION_ID, handler);
+    public void subscribe(LandmarksMessageProcessingFunction processingFunction) {
+        googlePubsubService.subscribe(PROJECT_ID, SUBSCRIPTION_ID, new LandmarksMessageReceiveHandler(processingFunction));
     }
 }

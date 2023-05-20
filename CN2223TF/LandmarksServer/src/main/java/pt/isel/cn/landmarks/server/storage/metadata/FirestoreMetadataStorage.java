@@ -16,6 +16,8 @@ import static pt.isel.cn.landmarks.server.Config.FIRESTORE_COLLECTION_NAME;
 
 /**
  * Implementation of the {@link MetadataStorage} interface that uses Firestore.
+ *
+ * @see <a href="https://cloud.google.com/firestore">Firestore</a>
  */
 public class FirestoreMetadataStorage implements MetadataStorage {
 
@@ -42,16 +44,14 @@ public class FirestoreMetadataStorage implements MetadataStorage {
     }
 
     @Override
-    public List<RequestMetadata> getRequestMetadataByConfidence(float confidenceThreshold) {
+    public List<RequestMetadata> getAllRequestMetadata() {
         try {
             CollectionReference colRef = service.collection(FIRESTORE_COLLECTION_NAME);
-            ApiFuture<QuerySnapshot> query = colRef.whereGreaterThanOrEqualTo(
-                    "landmarks.confidence", confidenceThreshold).get();
+            ApiFuture<QuerySnapshot> query = colRef.get();
 
             return query.get().getDocuments().stream()
                     .map(queryDocumentSnapshot -> queryDocumentSnapshot.toObject(RequestMetadata.class))
                     .collect(Collectors.toList());
-
         } catch (Exception e) {
             return Collections.emptyList();
         }

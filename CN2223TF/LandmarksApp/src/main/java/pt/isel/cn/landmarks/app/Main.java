@@ -15,6 +15,8 @@ import pt.isel.cn.landmarks.app.storage.data.GoogleCloudDataStorage;
 import pt.isel.cn.landmarks.app.storage.metadata.FirestoreMetadataStorage;
 import pt.isel.cn.landmarks.app.storage.metadata.MetadataStorage;
 
+import java.util.Scanner;
+
 /**
  * Main class for the LandmarksApp.
  */
@@ -49,5 +51,7 @@ public class Main {
         );
         worker.run();
         LandmarksLogger.logger.info("LandmarksApp worker started.");
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
     }
 }

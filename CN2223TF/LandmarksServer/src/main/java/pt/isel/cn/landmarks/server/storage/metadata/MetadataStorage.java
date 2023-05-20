@@ -19,10 +19,9 @@ public interface MetadataStorage {
     Optional<RequestMetadata> getRequestMetadata(String requestId);
 
     /**
-     * Gets a list of request metadata that contain at least a landmark within the confidence threshold.
+     * Gets all request metadata.
      *
-     * @param confidenceThreshold the confidence threshold to use
      * @return the list of request metadata
      */
-    List<RequestMetadata> getRequestMetadataByConfidence(float confidenceThreshold);
+    List<RequestMetadata> getAllRequestMetadata();
 }

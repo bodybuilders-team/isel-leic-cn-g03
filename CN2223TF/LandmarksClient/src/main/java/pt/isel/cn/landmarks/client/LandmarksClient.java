@@ -15,6 +15,10 @@ import landmarks.SubmitImageRequest;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 /**
@@ -24,6 +28,8 @@ public class LandmarksClient {
 
     private static final int SVC_PORT = 8000;
     private static final String SVC_IP = "localhost";
+
+    private static final String MAP_DOWNLOAD_DIRECTORY = "downloadedMaps";
 
     private static final int BLOCK_SIZE = 4096; // 4KB buffer
 
@@ -130,7 +136,9 @@ public class LandmarksClient {
                 requestObserver.onNext(request);
             }
         } catch (IOException e) {
+            e.printStackTrace();
             requestObserver.onError(e);
+            return;
         }
 
         // Mark the end of the request
@@ -140,12 +148,17 @@ public class LandmarksClient {
     /**
      * Gets the results for a request.
      * <p>
-     * Asks the user for the request id and prints the results.
+     * Asks the user for the request id and prints the results and creates a file with the map image.
+     * <p>
      * The results are printed in the following format:
-     * Landmark Name: <landmark name>
-     * Latitude: <latitude>
-     * Longitude: <longitude>
-     * Confidence: <confidence>
+     * <p>
+     * Landmark Name: [landmark_name]
+     * <p>
+     * Latitude: [latitude]
+     * <p>
+     * Longitude: [longitude]
+     * <p>
+     * Confidence: [confidence]
      */
     public static void getResults() {
         System.out.println("########## Get Results ##########");
@@ -159,6 +172,11 @@ public class LandmarksClient {
 
         GetResultsResponse response = blockingStub.getResults(request);
 
+        if (response.getLandmarksList().isEmpty()) {
+            System.out.println("No landmarks found for this request!");
+            return;
+        }
+
         // Process the response
         for (Landmark landmark : response.getLandmarksList()) {
             System.out.println("Landmark Name: " + landmark.getName());
@@ -167,6 +185,25 @@ public class LandmarksClient {
             System.out.println("Confidence: " + landmark.getConfidence());
             System.out.println();
         }
+
+        try {
+            Path directoryPath = Paths.get(MAP_DOWNLOAD_DIRECTORY);
+            if (!Files.exists(directoryPath))
+                Files.createDirectories(directoryPath);
+
+            System.out.println(directoryPath.toAbsolutePath());
+
+            // Check if the file exists and create it if not
+            Path downloadTo = directoryPath.resolve(String.format("map-%s.png", requestId));
+            if (!Files.exists(downloadTo))
+                Files.createFile(downloadTo);
+
+            PrintStream writeTo = new PrintStream(Files.newOutputStream(downloadTo));
+
+            writeTo.write(response.getMap().getImageData().toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -174,14 +211,24 @@ public class LandmarksClient {
      * <p>
      * Asks the user for the confidence threshold and prints the identified photos.
      * The identified photos are printed in the following format:
-     * Photo Name: <photo name>
-     * Landmark Name: <landmark name>
+     * <p>
+     * Photo Name: [photo_name]
+     * <p>
+     * Landmark Name: [landmark_name]
+     * <p>
+     * Confidence: [confidence]
      */
+
     public static void getIdentifiedPhotos() {
         System.out.println("########## Get Identified Photos ##########");
         System.out.print("Enter the confidence threshold: ");
         Scanner scan = new Scanner(System.in);
         float confidenceThreshold = scan.nextFloat();
+
+        if (confidenceThreshold < 0 || confidenceThreshold > 1) {
+            System.out.println("Invalid confidence threshold! Must be between 0 and 1.");
+            return;
+        }
 
         GetIdentifiedPhotosRequest request = GetIdentifiedPhotosRequest.newBuilder()
                 .setConfidenceThreshold(confidenceThreshold)
@@ -189,10 +236,18 @@ public class LandmarksClient {
 
         GetIdentifiedPhotosResponse response = blockingStub.getIdentifiedPhotos(request);
 
+        if (response.getIdentifiedPhotosList().isEmpty()) {
+            System.out.printf("No identified photos found within the confidence threshold of %s!\n", confidenceThreshold);
+            return;
+        }
+
+        System.out.printf("Identified Photos within the confidence threshold of %s:\n", confidenceThreshold);
+
         // Process the response
         for (IdentifiedPhoto identifiedPhoto : response.getIdentifiedPhotosList()) {
             System.out.println("Photo Name: " + identifiedPhoto.getPhotoName());
             System.out.println("Landmark Name: " + identifiedPhoto.getLandmarkName());
+            System.out.println("Confidence: " + identifiedPhoto.getConfidence());
             System.out.println();
         }
     }

@@ -17,6 +17,8 @@ import java.nio.channels.WritableByteChannel;
 
 /**
  * Implementation of the {@link CloudDataStorage} interface that uses Google Cloud Storage.
+ *
+ * @see <a href="https://cloud.google.com/storage">Google Cloud Storage</a>
  */
 public class GoogleCloudDataStorage implements CloudDataStorage {
 

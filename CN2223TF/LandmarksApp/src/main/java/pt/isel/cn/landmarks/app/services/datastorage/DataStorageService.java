@@ -4,6 +4,7 @@ import pt.isel.cn.landmarks.app.domain.Landmark;
 import pt.isel.cn.landmarks.app.storage.data.CloudDataStorage;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static pt.isel.cn.landmarks.app.Config.MAPS_BUCKET_NAME;
 
@@ -51,14 +52,16 @@ public class DataStorageService {
      * @return the map blob name or null if an error occurred
      */
     public String storeLandmarkMap(Landmark landmark) {
+        String blobName = UUID.randomUUID().toString();
+
         try {
-            cloudDataStorage.uploadBlobToBucket(MAPS_BUCKET_NAME, landmark.getName(), landmark.getMap(), "image/png");
+            cloudDataStorage.uploadBlobToBucket(MAPS_BUCKET_NAME, blobName, landmark.getMap(), null);
         } catch (IOException e) {
             return null;
         }
 
-        cloudDataStorage.makeBlobPublic(MAPS_BUCKET_NAME, landmark.getName());
+        cloudDataStorage.makeBlobPublic(MAPS_BUCKET_NAME, blobName);
 
-        return landmark.getName();
+        return blobName;
     }
 }

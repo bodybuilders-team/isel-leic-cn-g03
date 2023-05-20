@@ -7,7 +7,6 @@ import pt.isel.cn.landmarks.app.services.landmarks.LandmarkDetectionService;
 import pt.isel.cn.landmarks.app.services.maps.MapsService;
 import pt.isel.cn.landmarks.app.services.metadata.MetadataService;
 import pt.isel.cn.landmarks.app.services.pubsub.LandmarksGooglePubsubService;
-import pt.isel.cn.landmarks.app.services.pubsub.MessageReceiveHandler;
 
 import java.io.IOException;
 import java.util.List;
@@ -55,8 +54,7 @@ public class LandmarksWorker implements Runnable {
      */
     @Override
     public void run() {
-        pubsubService.subscribe(new MessageReceiveHandler(
-                (String requestId, String photoName, String timestamp, String bucketName, String blobName) -> {
+        pubsubService.subscribe((String requestId, String photoName, String timestamp, String bucketName, String blobName) -> {
                     LandmarksLogger.logger.info("Received request: " + requestId);
 
                     try {
@@ -99,6 +97,6 @@ public class LandmarksWorker implements Runnable {
                         e.printStackTrace();
                     }
                 }
-        ));
+        );
     }
 }

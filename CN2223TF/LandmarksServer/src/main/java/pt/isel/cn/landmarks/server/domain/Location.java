@@ -4,8 +4,8 @@ package pt.isel.cn.landmarks.server.domain;
  * Geographic location.
  */
 public class Location {
-    private final double latitude;
-    private final double longitude;
+    private double latitude;
+    private double longitude;
 
     /**
      * Constructor for a location.
@@ -18,6 +18,8 @@ public class Location {
         this.longitude = longitude;
     }
 
+    public Location() {
+    }
 
     public double getLatitude() {
         return latitude;
