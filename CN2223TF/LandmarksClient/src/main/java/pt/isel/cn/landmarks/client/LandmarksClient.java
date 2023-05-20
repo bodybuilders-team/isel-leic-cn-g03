@@ -115,6 +115,11 @@ public class LandmarksClient {
         System.out.print("Enter the image path: ");
         String filePath = scan.nextLine();
 
+        if(!Files.exists(Paths.get(filePath))) {
+            System.out.println("Image does not exist in the provided path.");
+            return;
+        }
+
         // Create a stream observer to handle the response
         SubmitImageResponseObserver responseObserver = new SubmitImageResponseObserver();
 
@@ -148,7 +153,7 @@ public class LandmarksClient {
     /**
      * Gets the results for a request.
      * <p>
-     * Asks the user for the request id and prints the results and creates a file with the map image.
+     * Asks the user for the request id and prints the results and creates a file with the received map image.
      * <p>
      * The results are printed in the following format:
      * <p>
