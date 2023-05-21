@@ -5,8 +5,7 @@ import com.google.cloud.storage.StorageOptions;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import landmarks.LandmarksServiceGrpc;
-import pt.isel.cn.landmarks.server.service.images.ImageService;
-import pt.isel.cn.landmarks.server.service.maps.MapService;
+import pt.isel.cn.landmarks.server.service.Service;
 import pt.isel.cn.landmarks.server.storage.data.CloudDataStorage;
 import pt.isel.cn.landmarks.server.storage.data.GoogleCloudDataStorage;
 import pt.isel.cn.landmarks.server.storage.metadata.FirestoreMetadataStorage;
@@ -34,12 +33,11 @@ public class Main {
      */
     public static void main(String[] args) throws IOException {
         CloudDataStorage cloudDataStorage = new GoogleCloudDataStorage(StorageOptions.getDefaultInstance().getService());
-        ImageService imageService = new ImageService(cloudDataStorage);
-        MapService mapService = new MapService(cloudDataStorage);
         MetadataStorage metadataStorage = new FirestoreMetadataStorage(FirestoreOptions.getDefaultInstance().getService());
+        Service service = new Service(cloudDataStorage, metadataStorage);
 
         Server svc = ServerBuilder.forPort(SVC_PORT)
-                .addService(new LandmarksServer(imageService, mapService, metadataStorage))
+                .addService(new LandmarksServer(service))
                 .build()
                 .start();
         System.out.println("LandmarksServer started on port " + SVC_PORT);

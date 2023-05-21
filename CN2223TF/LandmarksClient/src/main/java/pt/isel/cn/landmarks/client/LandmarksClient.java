@@ -3,6 +3,7 @@ package pt.isel.cn.landmarks.client;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import landmarks.GetIdentifiedPhotosRequest;
 import landmarks.GetIdentifiedPhotosResponse;
@@ -72,8 +73,10 @@ public class LandmarksClient {
                         System.out.println("Invalid option!");
                         break;
                 }
-            } catch (Exception ex) {
-                System.out.println("Error on call:" + ex.getMessage());
+            } catch (StatusRuntimeException ex) {
+                System.out.println("Error on call: " + ex.getMessage());
+            }
+            catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -115,7 +118,7 @@ public class LandmarksClient {
         System.out.print("Enter the image path: ");
         String filePath = scan.nextLine();
 
-        if(!Files.exists(Paths.get(filePath))) {
+        if (!Files.exists(Paths.get(filePath))) {
             System.out.println("Image does not exist in the provided path.");
             return;
         }
