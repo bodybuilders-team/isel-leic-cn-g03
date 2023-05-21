@@ -15,7 +15,7 @@ import landmarks.SubmitImageResponse;
 import pt.isel.cn.landmarks.server.service.Service;
 import pt.isel.cn.landmarks.server.service.dtos.GetResultsOutput;
 import pt.isel.cn.landmarks.server.service.dtos.IdentifiedPhotoOutput;
-import pt.isel.cn.landmarks.server.service.exceptions.ImageUploadException;
+import pt.isel.cn.landmarks.server.service.exceptions.ImageSubmissionException;
 import pt.isel.cn.landmarks.server.service.exceptions.InvalidConfidenceThresholdException;
 import pt.isel.cn.landmarks.server.service.exceptions.MapImageRetrievalException;
 import pt.isel.cn.landmarks.server.service.exceptions.RequestNotFoundException;
@@ -180,7 +180,7 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
                 LandmarksServerLogger.logger.info(String.format(
                         "Successfully submitted image with request %s", requestId
                 ));
-            } catch (ImageUploadException e) {
+            } catch (ImageSubmissionException e) {
                 LandmarksServerLogger.logger.info(String.format(
                         "Error during image submission of request %s", requestId
                 ));

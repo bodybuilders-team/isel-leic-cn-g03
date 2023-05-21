@@ -5,6 +5,7 @@ import com.google.cloud.storage.StorageOptions;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import landmarks.LandmarksServiceGrpc;
+import pt.isel.cn.landmarks.server.service.PubSubLandmarksDetector;
 import pt.isel.cn.landmarks.server.service.Service;
 import pt.isel.cn.landmarks.server.storage.data.CloudDataStorage;
 import pt.isel.cn.landmarks.server.storage.data.GoogleCloudDataStorage;
@@ -34,7 +35,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
         CloudDataStorage cloudDataStorage = new GoogleCloudDataStorage(StorageOptions.getDefaultInstance().getService());
         MetadataStorage metadataStorage = new FirestoreMetadataStorage(FirestoreOptions.getDefaultInstance().getService());
-        Service service = new Service(cloudDataStorage, metadataStorage);
+        PubSubLandmarksDetector landmarksDetector = new PubSubLandmarksDetector();
+        Service service = new Service(cloudDataStorage, metadataStorage, landmarksDetector);
 
         Server svc = ServerBuilder.forPort(SVC_PORT)
                 .addService(new LandmarksServer(service))

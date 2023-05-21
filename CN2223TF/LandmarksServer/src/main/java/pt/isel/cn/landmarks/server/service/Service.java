@@ -1,14 +1,11 @@
 package pt.isel.cn.landmarks.server.service;
 
-import com.google.api.core.ApiFuture;
-import com.google.cloud.pubsub.v1.Publisher;
-import com.google.pubsub.v1.PubsubMessage;
-import com.google.pubsub.v1.TopicName;
 import pt.isel.cn.landmarks.server.domain.LandmarkMetadata;
 import pt.isel.cn.landmarks.server.domain.RequestMetadata;
 import pt.isel.cn.landmarks.server.service.dtos.GetResultsOutput;
 import pt.isel.cn.landmarks.server.service.dtos.IdentifiedPhotoOutput;
-import pt.isel.cn.landmarks.server.service.exceptions.ImageUploadException;
+import pt.isel.cn.landmarks.server.service.exceptions.LandmarkDetectionException;
+import pt.isel.cn.landmarks.server.service.exceptions.ImageSubmissionException;
 import pt.isel.cn.landmarks.server.service.exceptions.InvalidConfidenceThresholdException;
 import pt.isel.cn.landmarks.server.service.exceptions.MapImageRetrievalException;
 import pt.isel.cn.landmarks.server.service.exceptions.RequestNotFoundException;
@@ -17,18 +14,14 @@ import pt.isel.cn.landmarks.server.storage.data.CloudDataStorage;
 import pt.isel.cn.landmarks.server.storage.metadata.MetadataStorage;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static pt.isel.cn.landmarks.server.Config.IMAGES_BUCKET_NAME;
 import static pt.isel.cn.landmarks.server.Config.MAPS_BUCKET_NAME;
-import static pt.isel.cn.landmarks.server.Config.PROJECT_ID;
-import static pt.isel.cn.landmarks.server.Config.TOPIC_ID;
 
 /**
  * Service for handling operations of the server.
@@ -37,10 +30,12 @@ public class Service {
 
     private final CloudDataStorage cloudDataStorage;
     private final MetadataStorage metadataStorage;
+    private final LandmarksDetector landmarksDetector;
 
-    public Service(CloudDataStorage cloudDataStorage, MetadataStorage metadataStorage) {
+    public Service(CloudDataStorage cloudDataStorage, MetadataStorage metadataStorage, LandmarksDetector landmarksDetector) {
         this.cloudDataStorage = cloudDataStorage;
         this.metadataStorage = metadataStorage;
+        this.landmarksDetector = landmarksDetector;
     }
 
     /**
@@ -49,18 +44,18 @@ public class Service {
      * @param requestId  the id of the request
      * @param imageBytes the image in byte array form
      * @param photoName  the name of the photo
-     * @throws ImageUploadException if there was an error submitting the image
+     * @throws ImageSubmissionException if there was an error submitting the image
      */
-    public void submitImage(String requestId, byte[] imageBytes, String photoName) throws ImageUploadException {
+    public void submitImage(String requestId, byte[] imageBytes, String photoName) throws ImageSubmissionException {
         String blobName = UUID.randomUUID().toString();
 
         try {
             cloudDataStorage.uploadBlobToBucket(IMAGES_BUCKET_NAME, blobName, imageBytes, null);
             cloudDataStorage.makeBlobPublic(IMAGES_BUCKET_NAME, blobName);
 
-            notifyAboutImage(requestId, photoName, blobName);
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            throw new ImageUploadException(String.format("Error submitting image %s", photoName));
+            landmarksDetector.notifyAboutRequest(requestId, photoName, blobName);
+        } catch (IOException | LandmarkDetectionException e) {
+            throw new ImageSubmissionException(String.format("Error submitting image %s", photoName));
         }
     }
 
@@ -151,27 +146,5 @@ public class Service {
         } catch (IOException e) {
             return null;
         }
-    }
-
-    /**
-     * Notifies the landmark processing app about an image.
-     *
-     * @param requestId     the id of the request
-     * @param photoName     the name of the photo
-     * @param imageLocation the location of the uploaded image
-     */
-    private void notifyAboutImage(String requestId, String photoName, String imageLocation) throws IOException, ExecutionException, InterruptedException {
-        TopicName tName = TopicName.ofProjectTopicName(PROJECT_ID, TOPIC_ID);
-        Publisher publisher = Publisher.newBuilder(tName).build();
-        PubsubMessage pubsubMessage = PubsubMessage.newBuilder()
-                .putAttributes("requestId", requestId)
-                .putAttributes("photoName", photoName)
-                .putAttributes("timestamp", LocalDateTime.now().toString())
-                .putAttributes("bucket", IMAGES_BUCKET_NAME)
-                .putAttributes("blob", imageLocation)
-                .build();
-        ApiFuture<String> future = publisher.publish(pubsubMessage);
-        future.get();
-        publisher.shutdown();
     }
 }
