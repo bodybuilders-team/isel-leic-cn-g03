@@ -50,8 +50,7 @@ Before running the Landmarks gRPC Server, ensure you have the following:
 
 To set up the Landmarks gRPC Server, follow these steps:
 
-1. Clone the Landmarks App repository from
-   GitHub: [https://github.com/your-repo/landmarks-app](https://github.com/your-repo/landmarks-app).
+1. Clone the Landmarks App repository from GitHub.
 2. Set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to the path of your service account key file.
 3. Replace the placeholders in the `Config` class with your project-specific values:
     - `PROJECT_ID`: Your Google Cloud project ID.
@@ -66,19 +65,20 @@ To set up the Landmarks gRPC Server, follow these steps:
 
 To run the Landmarks gRPC Server, follow these steps:
 
-1. Clone the repository.
-
-2. Build the server application using Maven:
+1. Build the server application using Maven:
 
    ```shell
    mvn clean package
    ```
 
-3. To start the Landmarks gRPC Server, use the following command:
+   Remember that you need to have Maven installed in your machine. If you don't have it, you can use an IDE like
+   IntelliJ IDEA or Eclipse, which have Maven integrated.
 
-```shell
-java -jar target/landmarks-server.jar
-```
+2. To start the Landmarks gRPC Server, use the following command:
+
+    ```shell
+    java -jar target/LandmarksServer-1.0-jar-with-dependencies.jar
+    ```
 
 By default, the server listens on port 8000.
 

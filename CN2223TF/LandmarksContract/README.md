@@ -79,13 +79,9 @@ The API defines the following messages:
 To use the gRPC API for interacting with the Landmarks service, follow the below steps:
 
 1. Clone this repository to your local machine.
-
 2. Install the necessary dependencies and libraries for your programming language.
-
 3. Generate the gRPC client code from the provided proto file.
-
 4. Connect to the Landmarks service using the generated client code.
-
 5. Utilize the RPC methods to submit photos, retrieve results, and get identified photos.
 
 Refer to the documentation of your chosen programming language's gRPC implementation for specific instructions on

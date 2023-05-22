@@ -29,8 +29,7 @@ Before running the Landmarks App, ensure that you have the following:
 
 ## Setup
 
-1. Clone the Landmarks App repository from
-   GitHub: [https://github.com/your-repo/landmarks-app](https://github.com/your-repo/landmarks-app).
+1. Clone the Landmarks App repository from GitHub.
 2. Set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to the path of your service account key file.
 3. Replace the placeholders in the `Config` class with your project-specific values:
     - `PROJECT_ID`: Your Google Cloud project ID.
@@ -46,17 +45,20 @@ Before running the Landmarks App, ensure that you have the following:
 To build and run the Landmarks App, follow these steps:
 
 1. Open a terminal or command prompt and navigate to the root directory of the Landmarks App.
-2. Build the application using Gradle:
+2. Build the application using Maven:
 
+   ```shell
+   mvn clean package
    ```
-   ./gradlew build
-   ```
+
+   Remember that you need to have Maven installed in your machine. If you don't have it, you can use an IDE like
+   IntelliJ IDEA or Eclipse, which have Maven integrated.
 
 3. Run the application:
 
-   ```
-   ./gradlew run
-   ```
+   ```shell
+    java -jar target/LandmarksApp-1.0-jar-with-dependencies.jar
+    ```
 
 4. The Landmarks App will start and begin processing incoming messages from the Pub/Sub subscription. Press Enter to
    stop the application.

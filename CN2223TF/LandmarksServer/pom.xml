@@ -70,7 +70,7 @@
                     </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass>CN2223TF.Main</mainClass>
+                            <mainClass>pt.isel.cn.landmarks.server.LandmarksServer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

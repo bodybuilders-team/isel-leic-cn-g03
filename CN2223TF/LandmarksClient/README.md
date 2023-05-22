@@ -16,8 +16,7 @@
 
 Before using the Landmarks client, ensure you have the following:
 
-- Java Development Kit (JDK) installed.
-- gRPC libraries for Java.
+- Java Development Kit (JDK) 11 or higher installed.
 - Access to the Landmarks service endpoint (IP address and port number).
 
 <!--Update after IP lookup functionality is implemented-->
@@ -28,9 +27,7 @@ Before using the Landmarks client, ensure you have the following:
 
 To use the Landmarks client, follow these steps:
 
-1. Clone the Landmarks App repository from
-   GitHub: [https://github.com/your-repo/landmarks-app](https://github.com/your-repo/landmarks-app).
-2. Install the necessary dependencies and libraries for your Java development environment.
+1. Clone the Landmarks App repository from GitHub.
 
 ---
 
@@ -42,10 +39,17 @@ To use the Landmarks client, follow these steps:
    mvn clean package
    ```
 
+   Remember that you need to have Maven installed in your machine. If you don't have it, you can use an IDE like
+   IntelliJ IDEA or Eclipse, which have Maven integrated.
+
 2. Update the `SVC_IP` and `SVC_PORT` constants in the `LandmarksClient` class with the IP address and port number of
    the Landmarks service endpoint.
 
-3. Run the Landmarks client using the command `java -jar landmarks-client.jar`.
+3. Run the Landmarks client using the following command:
+
+   ```shell
+   java -jar target/LandmarksClient-1.0-jar-with-dependencies.jar
+   ```
 
 4. The client will display a menu with options for interacting with the Landmarks service. Follow the on-screen
    instructions to submit photos, retrieve results, and get identified photos.

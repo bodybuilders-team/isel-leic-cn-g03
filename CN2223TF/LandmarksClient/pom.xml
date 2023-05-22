@@ -29,14 +29,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.5.0</version>
                 <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass>machinesclient.ClientApp</mainClass>
+                            <mainClass>pt.isel.cn.landmarks.client.LandmarksClient</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
