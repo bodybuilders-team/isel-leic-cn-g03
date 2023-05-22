@@ -5,6 +5,7 @@ import com.google.cloud.storage.StorageOptions;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import landmarks.LandmarksServiceGrpc;
+import pt.isel.cn.landmarks.server.service.LandmarksDetector;
 import pt.isel.cn.landmarks.server.service.PubSubLandmarksDetector;
 import pt.isel.cn.landmarks.server.service.Service;
 import pt.isel.cn.landmarks.server.storage.data.CloudDataStorage;
@@ -25,7 +26,7 @@ public class Main {
     /**
      * Entry point for the Landmarks Server.
      * <p>
-     * Starts the server for Landmarks GRPC service following {@link LandmarksServiceGrpc} contract.
+     * Starts the server for Landmarks gRPC service following {@link LandmarksServiceGrpc} contract.
      * <p>
      * Is also responsible for creating the object instances used for dependency injection.
      *
@@ -35,7 +36,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         CloudDataStorage cloudDataStorage = new GoogleCloudDataStorage(StorageOptions.getDefaultInstance().getService());
         MetadataStorage metadataStorage = new FirestoreMetadataStorage(FirestoreOptions.getDefaultInstance().getService());
-        PubSubLandmarksDetector landmarksDetector = new PubSubLandmarksDetector();
+        LandmarksDetector landmarksDetector = new PubSubLandmarksDetector();
         Service service = new Service(cloudDataStorage, metadataStorage, landmarksDetector);
 
         Server svc = ServerBuilder.forPort(SVC_PORT)

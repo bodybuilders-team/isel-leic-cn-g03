@@ -7,23 +7,23 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Processes images and performs landmark detection.
+ * Processes photos and performs landmark detection.
  */
 public interface LandmarkDetectionService {
 
     /**
-     * Processes the given image and performs landmark detection.
+     * Processes the given photo and performs landmark detection.
      *
-     * @param imageUri the uri of the image to be processed
-     * @return a list of possible landmarks found in the image
+     * @param photoUri the uri of the photo to be processed
+     * @return a list of possible landmarks found in the photo
      */
-    List<Landmark> detectLandmarks(String imageUri) throws IOException;
+    List<Landmark> detectLandmarks(String photoUri) throws IOException;
 
     /**
-     * Processes the given image and performs landmark detection.
+     * Processes the given photo and performs landmark detection.
      *
-     * @param imageBytes the image to be processed in byte array form
-     * @return a list of possible landmarks found in the image
+     * @param photoBytes the photo to be processed in byte array form
+     * @return a list of possible landmarks found in the photo
      */
-    List<Landmark> detectLandmarks(byte[] imageBytes) throws IOException;
+    List<Landmark> detectLandmarks(byte[] photoBytes) throws IOException;
 }

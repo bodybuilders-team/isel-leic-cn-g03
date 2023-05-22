@@ -1,7 +1,7 @@
 package pt.isel.cn.landmarks.app.domain;
 
 /**
- * A landmark detected in an image.
+ * A landmark detected in a photo.
  * <p>
  * A landmark represents a real-world point of interest.
  * Contains the name and location of the landmark, the confidence score for the

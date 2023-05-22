@@ -7,13 +7,13 @@ import java.util.List;
 /**
  * Metadata for a landmark detection request.
  * <p>
- * Contains request information and the landmarks detected in the image.
+ * Contains request information and the landmarks detected in the photo.
  */
 public class RequestMetadata {
     private String requestId;
     private String photoName;
     private Timestamp timestamp;
-    private String imageUrl;
+    private String photoUrl;
     private String status;
     private List<LandmarkMetadata> landmarks;
 
@@ -23,15 +23,15 @@ public class RequestMetadata {
      * @param requestId the id of the request
      * @param photoName the name of the photo
      * @param timestamp the timestamp of the request
-     * @param imageUrl  the url of the image
+     * @param photoUrl  the url of the photo
      * @param status    the status of the request
-     * @param landmarks the landmarks detected in the image, after the request is processed
+     * @param landmarks the landmarks detected in the photo, after the request is processed
      */
-    public RequestMetadata(String requestId, String photoName, Timestamp timestamp, String imageUrl, String status, List<LandmarkMetadata> landmarks) {
+    public RequestMetadata(String requestId, String photoName, Timestamp timestamp, String photoUrl, String status, List<LandmarkMetadata> landmarks) {
         this.requestId = requestId;
         this.photoName = photoName;
         this.timestamp = timestamp;
-        this.imageUrl = imageUrl;
+        this.photoUrl = photoUrl;
         this.status = status;
         this.landmarks = landmarks;
     }
@@ -51,8 +51,8 @@ public class RequestMetadata {
         return timestamp;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getPhotoUrl() {
+        return photoUrl;
     }
 
     public String getStatus() {

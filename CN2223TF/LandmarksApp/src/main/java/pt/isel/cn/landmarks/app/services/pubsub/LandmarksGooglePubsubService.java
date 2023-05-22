@@ -15,7 +15,7 @@ public class LandmarksGooglePubsubService {
     }
 
     /**
-     * Subscribes to the Landmarks Pub/Sub topic and processes the received messages using the provided processing function.
+     * Subscribes to the Landmarks Pub/Sub subscription and processes the received messages using the provided processing function.
      *
      * @param processingFunction the processing function to process the received messages
      */

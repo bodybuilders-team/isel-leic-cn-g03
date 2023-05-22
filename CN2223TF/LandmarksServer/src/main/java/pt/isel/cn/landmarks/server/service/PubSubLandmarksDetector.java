@@ -8,7 +8,7 @@ import pt.isel.cn.landmarks.server.service.exceptions.LandmarkDetectionException
 
 import java.time.LocalDateTime;
 
-import static pt.isel.cn.landmarks.server.Config.IMAGES_BUCKET_NAME;
+import static pt.isel.cn.landmarks.server.Config.PHOTOS_BUCKET_NAME;
 import static pt.isel.cn.landmarks.server.Config.PROJECT_ID;
 import static pt.isel.cn.landmarks.server.Config.TOPIC_ID;
 
@@ -17,7 +17,7 @@ import static pt.isel.cn.landmarks.server.Config.TOPIC_ID;
  */
 public class PubSubLandmarksDetector implements LandmarksDetector {
     @Override
-    public void notifyAboutRequest(String requestId, String photoName, String imageLocation) throws LandmarkDetectionException {
+    public void notifyAboutRequest(String requestId, String photoName, String blobName) throws LandmarkDetectionException {
         TopicName tName = TopicName.ofProjectTopicName(PROJECT_ID, TOPIC_ID);
         try {
             Publisher publisher = Publisher.newBuilder(tName).build();
@@ -26,8 +26,8 @@ public class PubSubLandmarksDetector implements LandmarksDetector {
                     .putAttributes("requestId", requestId)
                     .putAttributes("photoName", photoName)
                     .putAttributes("timestamp", LocalDateTime.now().toString())
-                    .putAttributes("bucket", IMAGES_BUCKET_NAME)
-                    .putAttributes("blob", imageLocation)
+                    .putAttributes("bucket", PHOTOS_BUCKET_NAME)
+                    .putAttributes("blob", blobName)
                     .build();
             ApiFuture<String> future = publisher.publish(pubsubMessage);
 

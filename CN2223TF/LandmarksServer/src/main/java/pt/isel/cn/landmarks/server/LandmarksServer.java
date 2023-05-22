@@ -10,14 +10,13 @@ import landmarks.GetResultsResponse;
 import landmarks.IdentifiedPhoto;
 import landmarks.ImageMap;
 import landmarks.LandmarksServiceGrpc;
-import landmarks.SubmitImageRequest;
-import landmarks.SubmitImageResponse;
+import landmarks.SubmitPhotoRequest;
+import landmarks.SubmitPhotoResponse;
 import pt.isel.cn.landmarks.server.service.Service;
 import pt.isel.cn.landmarks.server.service.dtos.GetResultsOutput;
 import pt.isel.cn.landmarks.server.service.dtos.IdentifiedPhotoOutput;
-import pt.isel.cn.landmarks.server.service.exceptions.ImageSubmissionException;
+import pt.isel.cn.landmarks.server.service.exceptions.PhotoSubmissionException;
 import pt.isel.cn.landmarks.server.service.exceptions.InvalidConfidenceThresholdException;
-import pt.isel.cn.landmarks.server.service.exceptions.MapImageRetrievalException;
 import pt.isel.cn.landmarks.server.service.exceptions.RequestNotFoundException;
 import pt.isel.cn.landmarks.server.service.exceptions.RequestNotProcessedException;
 
@@ -28,7 +27,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Server for the Landmarks GRPC service following {@link LandmarksServiceGrpc} contract.
+ * Server for the Landmarks gRPC service following {@link LandmarksServiceGrpc} contract.
  */
 public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBase {
     private final Service service;
@@ -38,9 +37,9 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
     }
 
     @Override
-    public ImageRequestStreamObserver submitImage(
-            StreamObserver<landmarks.SubmitImageResponse> responseObserver) {
-        return new ImageRequestStreamObserver(responseObserver);
+    public PhotoRequestStreamObserver submitPhoto(
+            StreamObserver<landmarks.SubmitPhotoResponse> responseObserver) {
+        return new PhotoRequestStreamObserver(responseObserver);
     }
 
     @Override
@@ -66,6 +65,8 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
                     ).collect(Collectors.toList()));
 
             if (getResultsOutput.getMapImage() == null) {
+                LandmarksServerLogger.logger.severe("Error retrieving map image");
+
                 responseObserver.onNext(getResultsResponseBuilder.build());
                 responseObserver.onCompleted();
                 return;
@@ -88,13 +89,6 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
             LandmarksServerLogger.logger.info(e.getMessage());
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(String.format(
                     "Request with id %s didn't finish processing yet. Please try again later.",
-                    requestId
-            )).asException());
-        } catch (MapImageRetrievalException e) {
-            LandmarksServerLogger.logger.severe(e.getMessage());
-            // TODO error or just return the landmarks?
-            responseObserver.onError(Status.INTERNAL.withDescription(String.format(
-                    "Error retrieving landmark map from request with id %s. Please try again later or contact support if the problem persists.",
                     requestId
             )).asException());
         }
@@ -131,25 +125,25 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
     }
 
     /**
-     * Handles the transfer of the image, storing the bytes the client sends through the stream and then submitting the
-     * image for processing.
+     * Handles the transfer of the photo, storing the bytes the client sends through the stream and then submitting the
+     * photo for processing.
      */
-    private class ImageRequestStreamObserver implements StreamObserver<SubmitImageRequest> {
+    private class PhotoRequestStreamObserver implements StreamObserver<SubmitPhotoRequest> {
 
-        String photoName;
-        ByteArrayOutputStream imageBytes;
-        StreamObserver<SubmitImageResponse> responseObserver;
+        private String photoName;
+        private final ByteArrayOutputStream photoBytes;
+        private final StreamObserver<SubmitPhotoResponse> responseObserver;
 
-        public ImageRequestStreamObserver(StreamObserver<SubmitImageResponse> responseObserver) {
-            this.imageBytes = new ByteArrayOutputStream();
+        public PhotoRequestStreamObserver(StreamObserver<SubmitPhotoResponse> responseObserver) {
+            this.photoBytes = new ByteArrayOutputStream();
             this.responseObserver = responseObserver;
         }
 
         @Override
-        public void onNext(SubmitImageRequest submitImageRequest) {
+        public void onNext(SubmitPhotoRequest submitPhotoRequest) {
             try {
-                imageBytes.write(submitImageRequest.getImageData().toByteArray());
-                photoName = submitImageRequest.getPhotoName();
+                photoBytes.write(submitPhotoRequest.getPhoto().toByteArray());
+                photoName = submitPhotoRequest.getPhotoName();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -165,24 +159,24 @@ public class LandmarksServer extends LandmarksServiceGrpc.LandmarksServiceImplBa
             String requestId = UUID.randomUUID().toString();
 
             LandmarksServerLogger.logger.info(String.format(
-                    "Finished receiving image bytes: Assigned new request %s", requestId
+                    "Finished receiving photo bytes: Assigned new request %s", requestId
             ));
 
-            responseObserver.onNext(SubmitImageResponse.newBuilder()
+            responseObserver.onNext(SubmitPhotoResponse.newBuilder()
                     .setRequestId(requestId)
                     .build());
             responseObserver.onCompleted();
 
-            LandmarksServerLogger.logger.info(String.format("Submitting image for request %s", requestId));
+            LandmarksServerLogger.logger.info(String.format("Submitting photo for request %s", requestId));
             try {
-                service.submitImage(requestId, imageBytes.toByteArray(), photoName);
+                service.submitPhoto(requestId, photoBytes.toByteArray(), photoName);
 
                 LandmarksServerLogger.logger.info(String.format(
-                        "Successfully submitted image with request %s", requestId
+                        "Successfully submitted photo with request %s", requestId
                 ));
-            } catch (ImageSubmissionException e) {
+            } catch (PhotoSubmissionException e) {
                 LandmarksServerLogger.logger.info(String.format(
-                        "Error during image submission of request %s", requestId
+                        "Error during photo submission of request %s", requestId
                 ));
             }
         }

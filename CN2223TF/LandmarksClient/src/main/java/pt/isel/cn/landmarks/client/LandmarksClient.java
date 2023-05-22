@@ -12,7 +12,7 @@ import landmarks.GetResultsResponse;
 import landmarks.IdentifiedPhoto;
 import landmarks.Landmark;
 import landmarks.LandmarksServiceGrpc;
-import landmarks.SubmitImageRequest;
+import landmarks.SubmitPhotoRequest;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -36,7 +36,6 @@ public class LandmarksClient {
 
     public static LandmarksServiceGrpc.LandmarksServiceStub stub;
     public static LandmarksServiceGrpc.LandmarksServiceBlockingStub blockingStub;
-    private static ManagedChannel channel;
 
     /**
      * Entry point for the Landmarks client.
@@ -46,7 +45,7 @@ public class LandmarksClient {
     public static void main(String[] args) {
         // TODO: IP lookup
 
-        channel = ManagedChannelBuilder.forAddress(SVC_IP, SVC_PORT)
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(SVC_IP, SVC_PORT)
                 .usePlaintext()
                 .build();
         stub = LandmarksServiceGrpc.newStub(channel);
@@ -58,7 +57,7 @@ public class LandmarksClient {
                 int option = menu();
                 switch (option) {
                     case 0:
-                        submitImage();
+                        submitPhoto();
                         break;
                     case 1:
                         getResults();
@@ -75,8 +74,7 @@ public class LandmarksClient {
                 }
             } catch (StatusRuntimeException ex) {
                 System.out.println("Error on call: " + ex.getMessage());
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -93,7 +91,7 @@ public class LandmarksClient {
         do {
             System.out.println("########## Landmarks Menu ##########");
             System.out.println("Options for the Landmarks service:");
-            System.out.println(" 0: Submit Image");
+            System.out.println(" 0: Submit Photo");
             System.out.println(" 1: Get Results");
             System.out.println(" 2: Get Identified Photos");
             System.out.println(" 3: Exit");
@@ -104,40 +102,40 @@ public class LandmarksClient {
     }
 
     /**
-     * Submits an image to the service.
+     * Submits a photo to the service.
      * <p>
-     * Asks the user for the photo name and image path and sends the image data to the service.
-     * The image data is sent as a stream of blocks.
+     * Asks the user for the photo name and photo path and sends the photo to the service.
+     * The photo is sent as a stream of blocks.
      */
-    static void submitImage() {
+    static void submitPhoto() {
         Scanner scan = new Scanner(System.in);
 
-        System.out.println("########## Submit Image ##########");
+        System.out.println("########## Submit Photo ##########");
         System.out.print("Enter the photo name: ");
         String photoName = scan.nextLine();
-        System.out.print("Enter the image path: ");
+        System.out.print("Enter the photo path: ");
         String filePath = scan.nextLine();
 
         if (!Files.exists(Paths.get(filePath))) {
-            System.out.println("Image does not exist in the provided path.");
+            System.out.println("Photo does not exist in the provided path.");
             return;
         }
 
         // Create a stream observer to handle the response
-        SubmitImageResponseObserver responseObserver = new SubmitImageResponseObserver();
+        SubmitPhotoResponseObserver responseObserver = new SubmitPhotoResponseObserver();
 
-        // Send the image data as a stream of blocks
-        StreamObserver<SubmitImageRequest> requestObserver = stub.submitImage(responseObserver);
+        // Send the photo as a stream of blocks
+        StreamObserver<SubmitPhotoRequest> requestObserver = stub.submitPhoto(responseObserver);
 
         try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
             byte[] buffer = new byte[BLOCK_SIZE];
             int bytesRead;
 
             while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                // Create a new request message with the image block data
-                SubmitImageRequest request = SubmitImageRequest.newBuilder()
+                // Create a new request message with the photo block data
+                SubmitPhotoRequest request = SubmitPhotoRequest.newBuilder()
                         .setPhotoName(photoName)
-                        .setImageData(ByteString.copyFrom(buffer, 0, bytesRead))
+                        .setPhoto(ByteString.copyFrom(buffer, 0, bytesRead))
                         .build();
 
                 // Send the request to the server
@@ -198,8 +196,6 @@ public class LandmarksClient {
             Path directoryPath = Paths.get(MAP_DOWNLOAD_DIRECTORY);
             if (!Files.exists(directoryPath))
                 Files.createDirectories(directoryPath);
-
-            System.out.println(directoryPath.toAbsolutePath());
 
             // Check if the file exists and create it if not
             Path downloadTo = directoryPath.resolve(String.format("map-%s.png", requestId));

@@ -22,7 +22,7 @@ import java.util.List;
  * Implements the {@link LandmarkDetectionService} using the Google Vision API.
  * <p>
  * Google Vision API is a service that allows to detect a variety of different things in images. In this case,
- * it is only used to detect landmarks in images.
+ * it is only used to detect landmarks in photos.
  *
  * @see <a href="https://cloud.google.com/vision">Google Vision API</a>
  */
@@ -35,8 +35,8 @@ public class GoogleVisionLandmarkDetectionService implements LandmarkDetectionSe
      * because the latter only supports Google Cloud Storage URIs.
      */
     @Override
-    public List<Landmark> detectLandmarks(String imageUri) throws IOException {
-        return detectLandmarks(ImageSource.newBuilder().setImageUri(imageUri).build());
+    public List<Landmark> detectLandmarks(String photoUri) throws IOException {
+        return detectLandmarks(ImageSource.newBuilder().setImageUri(photoUri).build());
     }
 
     /**
@@ -46,16 +46,16 @@ public class GoogleVisionLandmarkDetectionService implements LandmarkDetectionSe
      * because the latter only supports Google Cloud Storage URIs.
      */
     @Override
-    public List<Landmark> detectLandmarks(byte[] imageBytes) throws IOException {
-        return detectLandmarks(ImageSource.newBuilder().setImageUriBytes(ByteString.copyFrom(imageBytes)).build());
+    public List<Landmark> detectLandmarks(byte[] photoBytes) throws IOException {
+        return detectLandmarks(ImageSource.newBuilder().setImageUriBytes(ByteString.copyFrom(photoBytes)).build());
     }
 
     /**
-     * Detects landmarks in the image specified by the given {@link ImageSource}, that can be initialized with an image
+     * Detects landmarks in the photo specified by the given {@link ImageSource}, that can be initialized with a photo
      * URI or with a byte array.
      *
      * @param imageSource the image to be processed
-     * @return a list of possible landmarks found in the image
+     * @return a list of possible landmarks found in the photo
      * @throws IOException if an I/O error occurs
      */
     private List<Landmark> detectLandmarks(ImageSource imageSource) throws IOException {

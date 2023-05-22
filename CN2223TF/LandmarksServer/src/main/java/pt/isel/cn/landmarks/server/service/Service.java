@@ -4,10 +4,9 @@ import pt.isel.cn.landmarks.server.domain.LandmarkMetadata;
 import pt.isel.cn.landmarks.server.domain.RequestMetadata;
 import pt.isel.cn.landmarks.server.service.dtos.GetResultsOutput;
 import pt.isel.cn.landmarks.server.service.dtos.IdentifiedPhotoOutput;
-import pt.isel.cn.landmarks.server.service.exceptions.LandmarkDetectionException;
-import pt.isel.cn.landmarks.server.service.exceptions.ImageSubmissionException;
+import pt.isel.cn.landmarks.server.service.exceptions.PhotoSubmissionException;
 import pt.isel.cn.landmarks.server.service.exceptions.InvalidConfidenceThresholdException;
-import pt.isel.cn.landmarks.server.service.exceptions.MapImageRetrievalException;
+import pt.isel.cn.landmarks.server.service.exceptions.LandmarkDetectionException;
 import pt.isel.cn.landmarks.server.service.exceptions.RequestNotFoundException;
 import pt.isel.cn.landmarks.server.service.exceptions.RequestNotProcessedException;
 import pt.isel.cn.landmarks.server.storage.data.CloudDataStorage;
@@ -20,7 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static pt.isel.cn.landmarks.server.Config.IMAGES_BUCKET_NAME;
+import static pt.isel.cn.landmarks.server.Config.PHOTOS_BUCKET_NAME;
 import static pt.isel.cn.landmarks.server.Config.MAPS_BUCKET_NAME;
 
 /**
@@ -39,23 +38,23 @@ public class Service {
     }
 
     /**
-     * Submits an image for processing.
+     * Submits a photo for processing.
      *
      * @param requestId  the id of the request
-     * @param imageBytes the image in byte array form
+     * @param photoBytes the photo in byte array form
      * @param photoName  the name of the photo
-     * @throws ImageSubmissionException if there was an error submitting the image
+     * @throws PhotoSubmissionException if there was an error submitting the photo
      */
-    public void submitImage(String requestId, byte[] imageBytes, String photoName) throws ImageSubmissionException {
+    public void submitPhoto(String requestId, byte[] photoBytes, String photoName) throws PhotoSubmissionException {
         String blobName = UUID.randomUUID().toString();
 
         try {
-            cloudDataStorage.uploadBlobToBucket(IMAGES_BUCKET_NAME, blobName, imageBytes, null);
-            cloudDataStorage.makeBlobPublic(IMAGES_BUCKET_NAME, blobName);
+            cloudDataStorage.uploadBlobToBucket(PHOTOS_BUCKET_NAME, blobName, photoBytes, null);
+            cloudDataStorage.makeBlobPublic(PHOTOS_BUCKET_NAME, blobName);
 
             landmarksDetector.notifyAboutRequest(requestId, photoName, blobName);
         } catch (IOException | LandmarkDetectionException e) {
-            throw new ImageSubmissionException(String.format("Error submitting image %s", photoName));
+            throw new PhotoSubmissionException(String.format("Error submitting photo %s", photoName));
         }
     }
 
@@ -66,9 +65,8 @@ public class Service {
      * @return the results of the request
      * @throws RequestNotFoundException     if the request with the provided id was not found
      * @throws RequestNotProcessedException if the request with the provided id didn't finish processing yet
-     * @throws MapImageRetrievalException   if the map image could not be retrieved
      */
-    public GetResultsOutput getResults(String requestId) throws RequestNotFoundException, RequestNotProcessedException, MapImageRetrievalException {
+    public GetResultsOutput getResults(String requestId) throws RequestNotFoundException, RequestNotProcessedException {
         Optional<RequestMetadata> requestOptional = metadataStorage.getRequestMetadata(requestId);
 
         if (requestOptional.isEmpty()) {
@@ -90,14 +88,12 @@ public class Service {
                 .max(Comparator.comparingDouble(LandmarkMetadata::getConfidence))
                 .get();
 
-        byte[] mapImage = getMapImage(highestConfidenceLandmark.getMapBlobName());
-        if (mapImage == null) { // TODO if one fails retrieve another?
-            throw new MapImageRetrievalException(String.format(
-                    "Error retrieving landmark map from request with id %s", requestId
-            ));
+        try {
+            byte[] mapImage = cloudDataStorage.downloadBlobFromBucket(MAPS_BUCKET_NAME, highestConfidenceLandmark.getMapBlobName());
+            return new GetResultsOutput(requestMetadata.getLandmarks(), mapImage);
+        } catch (IOException e) {
+            return null;
         }
-
-        return new GetResultsOutput(requestMetadata.getLandmarks(), mapImage);
     }
 
     /**
@@ -132,19 +128,5 @@ public class Service {
                             );
                         }
                 ).collect(Collectors.toList());
-    }
-
-    /**
-     * Retrieves the map image using the provided blob name.
-     *
-     * @param mapBlobName the name of the blob of the map image
-     * @return the map image in byte array form or null if the map image could not be retrieved
-     */
-    private byte[] getMapImage(String mapBlobName) {
-        try {
-            return cloudDataStorage.downloadBlobFromBucket(MAPS_BUCKET_NAME, mapBlobName);
-        } catch (IOException e) {
-            return null;
-        }
     }
 }

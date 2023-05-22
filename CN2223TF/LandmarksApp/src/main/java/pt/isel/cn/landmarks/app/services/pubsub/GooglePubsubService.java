@@ -30,7 +30,5 @@ public class GooglePubsubService {
                 .build();
 
         subscriber.startAsync().awaitRunning();
-
-        // TODO way to delete the subscriber eventually
     }
 }

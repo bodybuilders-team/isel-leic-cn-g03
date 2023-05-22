@@ -56,12 +56,6 @@
             <artifactId>google-cloud-vision</artifactId>
             <version>3.15.0</version>
         </dependency>
-        <!--Compute Engine-->
-        <!--<dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-compute</artifactId>
-            <version>1.27.0</version>
-        </dependency>-->
     </dependencies>
 
     <build>
