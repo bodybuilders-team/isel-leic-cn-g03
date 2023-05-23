@@ -1,0 +1,1 @@
+gcloud functions deploy funcIPLookup --project=cn2223-t1-g03 --allow-unauthenticated --entry-point=pt.isel.cn.landmarks.ip_lookup.Entrypoint --runtime=java11 --trigger-http --region=europe-west1 --source=target/deployment --service-account=landmarks-instance-manager@cn2223-t1-g03.iam.gserviceaccount.com --max-instances=3
