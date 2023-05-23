@@ -18,10 +18,15 @@ import java.util.concurrent.ExecutionException;
 public class InstanceManager {
 
     private static final String PROJECT_ID = "cn2223-t1-g03";
-    private static final String ZONE = "europe-west1-a";
+    private static final String ZONE = "europe-southwest1-a";
 
     private static final String LANDMARK_APP_INSTANCE_GROUP_NAME = "instance-group-landmarks-app";
+    private static final int LANDMARK_APP_INSTANCE_GROUP_MIN_SIZE = 0;
+    private static final int LANDMARK_APP_INSTANCE_GROUP_MAX_SIZE = 2;
+
     private static final String GRPC_SERVER_INSTANCE_GROUP_NAME = "instance-group-landmarks-server";
+    private static final int GRPC_SERVER_INSTANCE_GROUP_MIN_SIZE = 0; // 0 to disable the gRPC server
+    private static final int GRPC_SERVER_INSTANCE_GROUP_MAX_SIZE = 3;
 
     private static InstanceGroupManagersClient managersClient;
 
@@ -33,7 +38,6 @@ public class InstanceManager {
     public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
         managersClient = InstanceGroupManagersClient.create();
 
-        Scanner input = new Scanner(System.in);
         boolean end = false;
         while (!end) {
             int option = menu();
@@ -42,17 +46,19 @@ public class InstanceManager {
                     listManagedInstanceGroupVMs(GRPC_SERVER_INSTANCE_GROUP_NAME);
                     break;
                 case 1:
-                    System.out.println("New size for instance group " + GRPC_SERVER_INSTANCE_GROUP_NAME + " ?");
-                    int newSize = input.nextInt();
-                    resizeManagedInstanceGroup(GRPC_SERVER_INSTANCE_GROUP_NAME, newSize);
+                    resizeManagedInstanceGroup(
+                            GRPC_SERVER_INSTANCE_GROUP_NAME,
+                            getNewSize(GRPC_SERVER_INSTANCE_GROUP_MIN_SIZE, GRPC_SERVER_INSTANCE_GROUP_MAX_SIZE)
+                    );
                     break;
                 case 2:
                     listManagedInstanceGroupVMs(LANDMARK_APP_INSTANCE_GROUP_NAME);
                     break;
                 case 3:
-                    System.out.println("New size for instance group " + LANDMARK_APP_INSTANCE_GROUP_NAME + " ?");
-                    int newSize2 = input.nextInt();
-                    resizeManagedInstanceGroup(LANDMARK_APP_INSTANCE_GROUP_NAME, newSize2);
+                    resizeManagedInstanceGroup(
+                            LANDMARK_APP_INSTANCE_GROUP_NAME,
+                            getNewSize(LANDMARK_APP_INSTANCE_GROUP_MIN_SIZE, LANDMARK_APP_INSTANCE_GROUP_MAX_SIZE)
+                    );
                     break;
                 case 4:
                     end = true;
@@ -81,7 +87,7 @@ public class InstanceManager {
             System.out.println(" 1 - Resize gRPC Server VM instances\n");
             System.out.println("Landmark App Instance Group:");
             System.out.println(" 2 - List Landmark App VM instances");
-            System.out.println(" 3 - Resize Landmark App VM instances");
+            System.out.println(" 3 - Resize Landmark App VM instances\n");
             System.out.println(" 4 - Exit");
             System.out.print("Enter an Option: ");
             option = scan.nextInt();
@@ -103,10 +109,33 @@ public class InstanceManager {
                 .setZone(ZONE)
                 .build();
 
+        if (!managersClient.listManagedInstances(request).iterateAll().iterator().hasNext()) {
+            System.out.println("No instances found for instance group: " + instanceGroupName);
+            return;
+        }
+
         System.out.println("Instances of instance group: " + instanceGroupName);
         for (ManagedInstance instance : managersClient.listManagedInstances(request).iterateAll()) {
-            System.out.println(instance.getInstance() + " with STATUS = " + instance.getInstanceStatus());
+            System.out.println(" - " + instance.getInstance() + " with status = " + instance.getInstanceStatus());
         }
+    }
+
+    /**
+     * Reads the new size of a managed instance group.
+     *
+     * @param minSize the minimum size of the managed instance group (inclusive)
+     * @param maxSize the maximum size of the managed instance group (inclusive)
+     * @return the new size of the managed instance group
+     */
+    static int getNewSize(int minSize, int maxSize) {
+        Scanner scan = new Scanner(System.in);
+        int newSize;
+        do {
+            System.out.print("Enter the new size of the instance group [" + minSize + "-" + maxSize + "]: ");
+            newSize = scan.nextInt();
+        } while (!(newSize >= minSize && newSize <= maxSize));
+
+        return newSize;
     }
 
     /**
@@ -126,7 +155,7 @@ public class InstanceManager {
                 newSize
         );
         Operation oper = result.get();
-        System.out.println("Resizing with status " + oper.getStatus());
+        System.out.println("Resizing status: " + oper.getStatus());
     }
 
     /**
