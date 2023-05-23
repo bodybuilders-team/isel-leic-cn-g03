@@ -28,11 +28,13 @@
     </dependencyManagement>
 
     <dependencies>
+        <!--Contract-->
         <dependency>
             <groupId>pt.isel.cn.landmarks</groupId>
             <artifactId>LandmarksContract</artifactId>
             <version>1.0</version>
         </dependency>
+        <!--Cloud Storage-->
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-storage</artifactId>

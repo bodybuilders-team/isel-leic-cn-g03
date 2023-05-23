@@ -34,13 +34,13 @@ public class LandmarksClient {
 
     private static final int BLOCK_SIZE = 4096; // 4KB buffer
 
-    public static LandmarksServiceGrpc.LandmarksServiceStub stub;
-    public static LandmarksServiceGrpc.LandmarksServiceBlockingStub blockingStub;
+    private static  LandmarksServiceGrpc.LandmarksServiceStub stub;
+    private static LandmarksServiceGrpc.LandmarksServiceBlockingStub blockingStub;
 
     /**
      * Entry point for the Landmarks client.
      *
-     * @param args The command line arguments.
+     * @param args the command line arguments
      */
     public static void main(String[] args) {
         // TODO: IP lookup
@@ -83,14 +83,13 @@ public class LandmarksClient {
     /**
      * Displays the menu and reads the user option.
      *
-     * @return The user option.
+     * @return the user option
      */
     static int menu() {
         Scanner scan = new Scanner(System.in);
         int option;
         do {
-            System.out.println("########## Landmarks Menu ##########");
-            System.out.println("Options for the Landmarks service:");
+            System.out.println("########## Landmark Recognition System ##########");
             System.out.println(" 0: Submit Photo");
             System.out.println(" 1: Get Results");
             System.out.println(" 2: Get Identified Photos");
@@ -222,7 +221,6 @@ public class LandmarksClient {
      * <p>
      * Confidence: [confidence]
      */
-
     public static void getIdentifiedPhotos() {
         System.out.println("########## Get Identified Photos ##########");
         System.out.print("Enter the confidence threshold: ");
