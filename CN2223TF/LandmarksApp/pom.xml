@@ -54,7 +54,7 @@
                     </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass>pt.isel.cn.landmarks.app.LandmarksApp</mainClass>
+                            <mainClass>pt.isel.cn.landmarks.app.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
