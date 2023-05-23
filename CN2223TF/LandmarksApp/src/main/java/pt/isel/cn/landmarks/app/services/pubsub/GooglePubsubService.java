@@ -29,6 +29,6 @@ public class GooglePubsubService {
                 .setExecutorProvider(executorProvider)
                 .build();
 
-        subscriber.startAsync().awaitRunning();
+        subscriber.startAsync().awaitTerminated();
     }
 }

@@ -48,7 +48,5 @@ public class Main {
         );
         app.start();
         LandmarksLogger.logger.info("LandmarksApp started.");
-        Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
     }
 }

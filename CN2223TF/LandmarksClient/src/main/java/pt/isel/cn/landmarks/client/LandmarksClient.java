@@ -28,7 +28,7 @@ import java.util.Scanner;
 public class LandmarksClient {
 
     private static final int SVC_PORT = 8000;
-    private static final String SVC_IP = "localhost";
+    private static final String SVC_IP = "34.175.51.181";
 
     private static final String MAP_DOWNLOAD_DIRECTORY = "downloadedMaps";
 

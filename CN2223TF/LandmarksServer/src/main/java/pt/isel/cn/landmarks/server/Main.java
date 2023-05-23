@@ -33,7 +33,7 @@ public class Main {
      * @param args the command line arguments
      * @throws IOException if an I/O error occurs
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         CloudDataStorage cloudDataStorage = new GoogleCloudDataStorage(StorageOptions.getDefaultInstance().getService());
         MetadataStorage metadataStorage = new FirestoreMetadataStorage(FirestoreOptions.getDefaultInstance().getService());
         LandmarksDetector landmarksDetector = new PubSubLandmarksDetector();
@@ -44,9 +44,6 @@ public class Main {
                 .build()
                 .start();
         System.out.println("LandmarksServer started on port " + SVC_PORT);
-
-        Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
-        svc.shutdown();
+        svc.awaitTermination(); // Execute in Do Forever mode
     }
 }
