@@ -17,6 +17,10 @@ import landmarks.SubmitPhotoRequest;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,13 +32,13 @@ import java.util.Scanner;
 public class LandmarksClient {
 
     private static final int SVC_PORT = 8000;
-    private static final String SVC_IP = "34.175.51.181";
+    private static final String IP_LOOKUP_CLOUD_FUNCTION_URL = "https://europe-west1-cn2223-t1-g03.cloudfunctions.net/funcIPLookup?instance-group=instance-group-landmarks-server";
 
     private static final String MAP_DOWNLOAD_DIRECTORY = "downloadedMaps";
 
     private static final int BLOCK_SIZE = 4096; // 4KB buffer
 
-    private static  LandmarksServiceGrpc.LandmarksServiceStub stub;
+    private static LandmarksServiceGrpc.LandmarksServiceStub stub;
     private static LandmarksServiceGrpc.LandmarksServiceBlockingStub blockingStub;
 
     /**
@@ -43,9 +47,14 @@ public class LandmarksClient {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO: IP lookup
+        String svcIp = lookupSvcIp();
+        if (svcIp == null) {
+            System.out.println("Unable to lookup the service IP!");
+            return;
+        }
+        System.out.println("Service IP: " + svcIp);
 
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(SVC_IP, SVC_PORT)
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(svcIp, SVC_PORT)
                 .usePlaintext()
                 .build();
         stub = LandmarksServiceGrpc.newStub(channel);
@@ -98,6 +107,35 @@ public class LandmarksClient {
             option = scan.nextInt();
         } while (!(option >= 0 && option <= 3));
         return option;
+    }
+
+    /**
+     * Looks up the service IP address.
+     *
+     * @return the service IP address
+     */
+    static String lookupSvcIp() {
+        String svcIp = null;
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(IP_LOOKUP_CLOUD_FUNCTION_URL))
+                    .GET()
+                    .build();
+
+            String response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+            String[] ips = response.split(","); // IPs separated by comma
+            if (ips.length == 0) {
+                System.out.println("No IPs found!");
+                return null;
+            }
+
+            svcIp = ips[(int) (Math.random() * ips.length)]; // Choose randomly one of the IPs
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Error looking up service IP address: " + e.getMessage());
+        }
+
+        return svcIp;
     }
 
     /**

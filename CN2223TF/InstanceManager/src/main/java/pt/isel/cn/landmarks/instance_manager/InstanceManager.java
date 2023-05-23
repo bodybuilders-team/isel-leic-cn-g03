@@ -1,9 +1,7 @@
 package pt.isel.cn.landmarks.instance_manager;
 
 import com.google.api.gax.longrunning.OperationFuture;
-import com.google.cloud.compute.v1.Instance;
 import com.google.cloud.compute.v1.InstanceGroupManagersClient;
-import com.google.cloud.compute.v1.InstancesClient;
 import com.google.cloud.compute.v1.ListManagedInstancesInstanceGroupManagersRequest;
 import com.google.cloud.compute.v1.ManagedInstance;
 import com.google.cloud.compute.v1.Operation;
@@ -156,26 +154,5 @@ public class InstanceManager {
         );
         Operation oper = result.get();
         System.out.println("Resizing status: " + oper.getStatus());
-    }
-
-    /**
-     * Lists the instances of a managed instance group.
-     *
-     * @param instanceGroupName the name of the managed instance group
-     * @throws IOException if the client fails to close
-     */
-    static void listIpInstancesFromGroup(String instanceGroupName) throws IOException {
-        System.out.println("Instances of instance group: " + instanceGroupName);
-        try (InstancesClient client = InstancesClient.create()) {
-            for (Instance curInst : client.list(PROJECT_ID, ZONE).iterateAll()) {
-                if (curInst.getName().contains(instanceGroupName)) {
-                    System.out.println("Name: " + curInst.getName() + "  VMId:" + curInst.getId());
-                    System.out.println("    Number of network interfaces: " + curInst.getNetworkInterfacesCount());
-                    String ip = curInst.getNetworkInterfaces(0).getAccessConfigs(0).getNatIP();
-                    System.out.println("    IP: " + ip);
-                    System.out.println("    Status: " + curInst.getStatus() + " : Last Start time: " + curInst.getLastStartTimestamp());
-                }
-            }
-        }
     }
 }

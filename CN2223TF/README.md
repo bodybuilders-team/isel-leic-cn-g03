@@ -23,6 +23,7 @@ This sections contain technical information about the project, like configuratio
 - [gRPC Server](./LandmarksServer/README.md)
 - [Landmarks Application](./LandmarksApp/README.md)
 - [Instance Manager](./InstanceManager/README.md)
+- [IPLookup Cloud Function](./CloudFunctionIPLookup/README.md)
 
 For more information about the project, please read the [report](./report.pdf).
 
