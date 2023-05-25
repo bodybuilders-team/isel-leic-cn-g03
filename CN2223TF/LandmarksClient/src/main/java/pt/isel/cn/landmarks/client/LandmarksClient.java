@@ -1,6 +1,7 @@
 package pt.isel.cn.landmarks.client;
 
 import com.google.protobuf.ByteString;
+import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -34,9 +35,12 @@ public class LandmarksClient {
     private static final int SVC_PORT = 8000;
     private static final String IP_LOOKUP_CLOUD_FUNCTION_URL = "https://europe-west1-cn2223-t1-g03.cloudfunctions.net/funcIPLookup?instance-group=instance-group-landmarks-server";
 
-    private static final String MAP_DOWNLOAD_DIRECTORY = "downloadedMaps";
+    private static final String USER_DOWNLOADS_DIRECTORY = System.getProperty("user.home") + "/Downloads";
+    private static final String MAP_DOWNLOAD_DIRECTORY = USER_DOWNLOADS_DIRECTORY;
 
     private static final int BLOCK_SIZE = 4096; // 4KB buffer
+
+    private static ManagedChannel channel;
 
     private static LandmarksServiceGrpc.LandmarksServiceStub stub;
     private static LandmarksServiceGrpc.LandmarksServiceBlockingStub blockingStub;
@@ -47,16 +51,7 @@ public class LandmarksClient {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        String svcIp = lookupSvcIp();
-        if (svcIp == null) {
-            System.out.println("Unable to lookup the service IP!");
-            return;
-        }
-        System.out.println("Service IP: " + svcIp);
-
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(svcIp, SVC_PORT)
-                .usePlaintext()
-                .build();
+        connectToServer();
         stub = LandmarksServiceGrpc.newStub(channel);
         blockingStub = LandmarksServiceGrpc.newBlockingStub(channel);
 
@@ -110,12 +105,50 @@ public class LandmarksClient {
     }
 
     /**
+     * Connects to a server using the IP lookup.
+     * Retries if the connection fails.
+     */
+    private static void connectToServer() {
+        boolean connected = false;
+
+        System.out.println("Connecting to a service...");
+
+        while (!connected) {
+            String svcIp = lookupSvcIp();
+            if (svcIp == null) {
+                System.out.println("Error looking up service IP address.");
+                continue;
+            }
+
+            channel = ManagedChannelBuilder.forAddress(svcIp, SVC_PORT)
+                    .usePlaintext()
+                    .build();
+
+            System.out.println("Connecting to service of IP " + svcIp + "...");
+
+            boolean connectionReady = false;
+            while (!connectionReady) {
+                ConnectivityState state = channel.getState(true);
+
+                if (state == ConnectivityState.READY) {
+                    System.out.println("Service IP: " + svcIp);
+                    connectionReady = true;
+                    connected = true;
+                } else if (state == ConnectivityState.TRANSIENT_FAILURE || state == ConnectivityState.SHUTDOWN) {
+                    System.out.println("Service IP: " + svcIp);
+                    System.out.println("Connection failed. Retrying...");
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
      * Looks up the service IP address.
      *
      * @return the service IP address
      */
-    static String lookupSvcIp() {
-        String svcIp = null;
+    private static String lookupSvcIp() {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -125,17 +158,16 @@ public class LandmarksClient {
 
             String response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
             String[] ips = response.split(","); // IPs separated by comma
-            if (ips.length == 0) {
+            if (response.isBlank() || ips.length == 0) {
                 System.out.println("No IPs found!");
                 return null;
             }
 
-            svcIp = ips[(int) (Math.random() * ips.length)]; // Choose randomly one of the IPs
+            return ips[(int) (Math.random() * ips.length)]; // Choose randomly one of the IPs
         } catch (IOException | InterruptedException e) {
             System.out.println("Error looking up service IP address: " + e.getMessage());
+            return null;
         }
-
-        return svcIp;
     }
 
     /**
@@ -242,6 +274,7 @@ public class LandmarksClient {
             PrintStream writeTo = new PrintStream(Files.newOutputStream(downloadTo));
 
             writeTo.write(response.getMap().getImageData().toByteArray());
+            writeTo.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
