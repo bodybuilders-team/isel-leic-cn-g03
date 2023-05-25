@@ -29,6 +29,7 @@ public class Entrypoint implements HttpFunction {
 
         BufferedWriter writer = response.getWriter();
         writer.write(String.join(",", ips)); // IPs separated by commas
+        writer.close();
     }
 
     /**
