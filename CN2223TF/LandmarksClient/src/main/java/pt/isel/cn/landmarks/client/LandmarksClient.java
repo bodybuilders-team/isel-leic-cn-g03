@@ -158,6 +158,11 @@ public class LandmarksClient {
 
             String response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
             String[] ips = response.split(","); // IPs separated by comma
+            System.out.println("Available IPs:");
+            for (String ip : ips) {
+                System.out.println(ip);
+            }
+
             if (response.isBlank() || ips.length == 0) {
                 System.out.println("No IPs found!");
                 return null;
